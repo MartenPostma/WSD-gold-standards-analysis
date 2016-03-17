@@ -1,22 +1,22 @@
-#stdlib
+# created or installed modules
+import warnings
+warnings.filterwarnings("ignore")
+from . import configuration
+from . import wordnet_utils as utils
+import seaborn as sns
+
+# stdlib
 import pickle
 import os
 from collections import defaultdict
 from functools import lru_cache
-import warnings
-warnings.filterwarnings("ignore")
-
-#created or installed modules
-from . import configuration
-from . import wordnet_utils as utils
-
-import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-from IPython.display import display, HTML
+from IPython.display import display
+
 
 @lru_cache()
-class WSD_analysis:
+class WsdAnalysis:
     """
     class to provide information about a WSD competition:
     1. meta data
@@ -28,7 +28,8 @@ class WSD_analysis:
     :param str competition: competition to analyze. options include:
     'se2-ls',
     """
-    def __init__(self,competition):
+
+    def __init__(self, competition):
         self.competition = competition
         self.info = configuration.get_relevant_paths(self.competition)
 
@@ -36,17 +37,23 @@ class WSD_analysis:
         self.load_polysemy_dict()
         self.process()
 
+        self.mfs_baseline = 100 * (self.sense_ranks[1] / self.num_instances)
+        self.type_token_ratio = self.num_instances / len(self.data)
+        self.num_of_different_lemmas = len(self.data)
+
     def metadata(self):
         """
         report metadata from competition
 
         """
         information = {'competition': self.competition,
-                       'wordnet_version' : self.info['wn_version'],
-                       'answers_downloaded_from' : self.info['answers_downloaded_from'],
-                       'date_of_downloading' : self.info['answers_downloaded_at'],
-                       'paper' : self.info['paper'],
-                       'bibtex' : self.info['bibtex']}
+                       'wordnet_version': self.info['wn_version'],
+                       'answers_downloaded_from': self.info[
+                           'answers_downloaded_from'],
+                       'date_of_downloading': self.info[
+                           'answers_downloaded_at'],
+                       'paper': self.info['paper'],
+                       'bibtex': self.info['bibtex']}
 
         df = pd.DataFrame.from_dict({'categories': list(information.keys()),
                                      'values': list(information.values())})
@@ -59,16 +66,15 @@ class WSD_analysis:
 
         """
         information = {'competition': self.competition,
-                       'num_of_instances' : self.num_instances,
-                       'num_of_different_lemmas' : len(self.data),
-                       'MFS_baseline' : round(self.mfs_baseline,2),
-                       'type_token_ratio': round(self.type_token_ratio,2)}
+                       'num_of_instances': self.num_instances,
+                       'num_of_different_lemmas': len(self.data),
+                       'MFS_baseline': round(self.mfs_baseline, 2),
+                       'type_token_ratio': round(self.type_token_ratio, 2)}
 
         df = pd.DataFrame.from_dict({'categories': list(information.keys()),
                                      'values': list(information.values())})
 
         display(df)
-
 
     def load_sense_rank_dict(self):
         """
@@ -82,8 +88,8 @@ class WSD_analysis:
 
         else:
             self.sense_rank_d = utils.get_sense_rank_dict(index_sense)
-            with open(self.info['sense_rank_path'],'wb') as outfile:
-                pickle.dump(self.sense_rank_d,outfile)
+            with open(self.info['sense_rank_path'], 'wb') as outfile:
+                pickle.dump(self.sense_rank_d, outfile)
 
     def load_polysemy_dict(self):
         """
@@ -93,12 +99,12 @@ class WSD_analysis:
         index_sense = self.info['wordnet_path']
         if os.path.exists(self.info['polysemy_path']):
             self.polysemy_d = pickle.load(open(self.info['polysemy_path'],
-                                                 'rb'))
+                                               'rb'))
 
         else:
             self.polysemy_d = utils.load_lemma_pos2offsets(index_sense)
-            with open(self.info['polysemy_path'],'wb') as outfile:
-                pickle.dump(self.polysemy_d,outfile)
+            with open(self.info['polysemy_path'], 'wb') as outfile:
+                pickle.dump(self.polysemy_d, outfile)
 
     def process(self):
         """
@@ -119,26 +125,27 @@ class WSD_analysis:
         with open(self.info['answers_path']) as infile:
             for line in infile:
 
-                #lemma info
-                #the variables id1 and id2 are so general because the information
-                #in those fields are not the same for all competitions
-                id1,id2,*keys = line.strip().split()
+                # lemma info
+                # the variables id1 and id2 are so general because the information
+                # in those fields are not the same for all competitions
+                id1, id2, *keys = line.strip().split()
 
-                if keys == ['U']:
+                if any([keys == ['U'],
+                        '%' not in line]):
                     continue
 
                 self.num_instances += 1
 
-                #pos and lemma info
+                # pos and lemma info
                 lemma, pos = utils.determine_lemma_pos(keys)
 
-                if self.competition == 'se2-ls':
+                if self.competition in {'se2-ls', 'se3-ls'}:
                     lemma = id2.split('.')[0]
 
                 if lemma not in self.data:
                     self.data[lemma] = defaultdict(int)
 
-                #sense rank info
+                # sense rank info
                 sense_rank = 0
                 sense_ranks = [self.sense_rank_d[key]
                                for key in keys
@@ -146,9 +153,9 @@ class WSD_analysis:
                 if sense_ranks:
                     sense_rank = min(sense_ranks)
 
-                #polysemy info
-                pol = self.polysemy_d[(lemma,pos)]
-                pol_all = self.polysemy_d[(lemma,'all')]
+                # polysemy info
+                pol = self.polysemy_d[(lemma, pos)]
+                pol_all = self.polysemy_d[(lemma, 'all')]
 
                 self.data[lemma][sense_rank] += 1
                 self.sense_ranks[sense_rank] += 1
@@ -156,40 +163,24 @@ class WSD_analysis:
                 self.polysemy[pol] += 1
                 self.polysemy_all[pol_all] += 1
 
-        self.mfs_baseline = 100 * (self.sense_ranks[1]/self.num_instances)
-        self.type_token_ratio = self.num_instances/len(self.data)
-
-    def rel_freq(self,list_of_freqs):
-        """
-        given list of frequencies, return return relative frequencies
-
-        >>> rel_freq([1,2,3,4])
-        [10, 20, 30, 40]
-
-        :param list list_of_freqs: list of numbers
-
-        :rtype: list
-        :return: list of relative frequencies
-        """
-        total = sum(list_of_freqs)
-        return [100 * (freq/total)
-                for freq in list_of_freqs]
-
-    def prepare_plot_sense_ranks(self,rel_freq=False):
+    def prepare_plot_sense_ranks(self, rel_freq=False):
         """
         plot sense rank distribution
 
         :param bool rel_freq: if rel_freq is set to True,
         the relative frequencies instead of the absolute values
         """
-        self.x = list(self.sense_ranks.keys())
-        self.y = list(self.sense_ranks.values())
+        self.x = []
+        self.y = []
+        for key, value in sorted(self.sense_ranks.items()):
+            self.x.append(key)
+            self.y.append(value)
+
         if rel_freq:
-            self.y = self.rel_freq(self.y)
+            self.y = utils.rel_freq(self.y)
 
         self.df = pd.DataFrame.from_dict({'rel_freq': self.y,
-                                     'sense_rank_classes': self.x})
-
+                                          'sense_rank_classes': self.x})
 
         self.x_label = 'sense rank'
         self.y_label = 'frequency'
@@ -198,21 +189,24 @@ class WSD_analysis:
 
         self.title = "Distribution per sense rank (%s)" % self.competition
 
-    def prepare_plot_pos(self,rel_freq=False):
+    def prepare_plot_pos(self, rel_freq=False):
         """
         plot pos distribution
 
         :param bool rel_freq: if rel_freq is set to True,
         the relative frequencies instead of the absolute values
         """
-        self.x = list(self.pos_d.keys())
-        self.y = list(self.pos_d.values())
+        self.x = []
+        self.y = []
+        for key, value in sorted(self.pos_d.items()):
+            self.x.append(key)
+            self.y.append(value)
+
         if rel_freq:
-            self.y = self.rel_freq(self.y)
+            self.y = utils.rel_freq(self.y)
 
         self.df = pd.DataFrame.from_dict({'rel_freq': self.y,
-                                     'pos': self.x})
-
+                                          'pos': self.x})
 
         self.x_label = 'part of speech'
         self.y_label = 'frequency'
@@ -221,8 +215,7 @@ class WSD_analysis:
 
         self.title = "Distribution per part of speech (%s)" % self.competition
 
-
-    def prepare_plot_polysemy(self,rel_freq=False,pos_independent=False):
+    def prepare_plot_polysemy(self, rel_freq=False, pos_independent=False):
         """
         plot pos distribution
 
@@ -236,15 +229,19 @@ class WSD_analysis:
         if pos_independent:
             info = self.polysemy_all
 
-        self.x = list(info.keys())
-        self.y = list(info.values())
+        self.x = []
+        self.y = []
+        for key, value in sorted(info.items()):
+            self.x.append(key)
+            self.y.append(value)
+
         if rel_freq:
-            self.y = self.rel_freq(self.y)
+            self.y = utils.rel_freq(self.y)
 
         df = pd.DataFrame.from_dict({'rel_freq': self.y,
                                      'polysemy': self.x})
 
-        #set class attributes
+        # set class attributes
         if pos_independent:
             self.title = "Distribution per polysemy class (pos independent,%s)" % self.competition
         else:
@@ -257,8 +254,7 @@ class WSD_analysis:
 
         self.df = df
 
-
-    def plot(self,category,rel_freq=False,pos_independent=False):
+    def plot(self, category, rel_freq=False, pos_independent=False):
         """
         create plots, which makes use of the following class attributes:
         1. x_label
@@ -278,7 +274,7 @@ class WSD_analysis:
         """
         if category == 'polysemy':
             plt.figure(figsize=(16, 8))
-            self.prepare_plot_polysemy(rel_freq,pos_independent)
+            self.prepare_plot_polysemy(rel_freq, pos_independent)
             color = 'y'
         elif category == 'sense_rank':
             self.prepare_plot_sense_ranks(rel_freq)

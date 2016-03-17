@@ -3,15 +3,15 @@ from . import analysis
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-from IPython.display import display, HTML
 
-def compare_basic_stats(competitions,basic_stat):
+
+def compare_basic_stats(competitions, basic_stat):
     """
 
-    :param list competition: competitions to analyze. see global 'competitions'
+    :param list competitions: competitions to analyze. see global 'competitions'
     in 'configuration.py' for all options
 
-    :param str basic_stats: options include: 'num_of_instances',
+    :param str basic_stat: options include: 'num_of_instances',
     'num_of_different_lemmas', 'mfs_baseline', 'type_token_ratio'
     """
     x = []
@@ -19,8 +19,8 @@ def compare_basic_stats(competitions,basic_stat):
 
     for competition in competitions:
 
-        instance = analysis.WSD_analysis(competition)
-        y_value = getattr(instance,basic_stat)
+        instance = analysis.WsdAnalysis(competition)
+        y_value = getattr(instance, basic_stat)
 
         x.append(competition)
         y.append(y_value)
@@ -38,11 +38,15 @@ def compare_basic_stats(competitions,basic_stat):
                                                            basic_stat))
     plt.legend(loc=7)
 
-def compare_properties(competitions,category,rel_freq=False,pos_independent=False):
+
+def compare_properties(competitions,
+                       category,
+                       rel_freq=False,
+                       pos_independent=False):
     """
     plot comparison of competitions for : sense_rank | polysemy | pos
 
-    :param list competition: competitions to analyze. see global 'competitions'
+    :param list competitions: competitions to analyze. see global 'competitions'
     in 'configuration.py' for all options
 
     :param str category: sense_rank | polysemy | pos
@@ -62,14 +66,17 @@ def compare_properties(competitions,category,rel_freq=False,pos_independent=Fals
 
     for competition in competitions:
 
-        instance = analysis.WSD_analysis(competition)
+        instance = analysis.WsdAnalysis(competition)
 
         if category == 'polysemy':
-            instance.prepare_plot_polysemy(rel_freq,pos_independent)
+            instance.prepare_plot_polysemy(rel_freq, pos_independent)
         elif category == 'sense_rank':
             instance.prepare_plot_sense_ranks(rel_freq)
         elif category == 'pos':
             instance.prepare_plot_pos(rel_freq)
+
+        x_label = instance.x_label
+        y_label = instance.y_label
 
         x_values.extend(instance.x)
         y_values.extend(instance.y)
@@ -78,12 +85,11 @@ def compare_properties(competitions,category,rel_freq=False,pos_independent=Fals
 
     df = pd.DataFrame.from_dict({'x_values': x_values,
                                  'y_values': y_values,
-                                 'hue_values' : hue_values})
+                                 'hue_values': hue_values})
 
     sns.set_style('whitegrid')
     ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df)
-    x_label = instance.x_label
-    y_label = instance.y_label
+
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     ax.set_title("Comparison of competitions %s for %s" % (' '.join(competitions),

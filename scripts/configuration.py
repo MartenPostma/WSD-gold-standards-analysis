@@ -1,36 +1,43 @@
-#stdlib
+# stdlib
 import os
 
-#installed or created modules
+# installed or created modules
 import pandas as pd
-from IPython.display import display, HTML
+from IPython.display import display
 
-competitions = {'se2-ls': { 'wn_version': '171',
-                            'fullname' : 'SensEval 2 English lexical sample task',
-                            'answers_downloaded_from' : 'http://www.hipposmond.com/senseval2/',
-                            'answers_downloaded_at' : '16-3-2016',
-                            'paper' : 'http://aclweb.org/anthology/S01-1004',
-                            'bibtex' : 'http://aclanthology.info/papers/english-lexical-sample-task-description.bib'},
-                'se2-aw': { 'wn_version': '171',
-                            'fullname' : 'SensEval 2 English all words task',
-                            'answers_downloaded_from' : 'http://www.hipposmond.com/senseval2/',
-                            'answers_downloaded_at' : '16-3-2016',
-                            'paper' : 'http://aclweb.org/anthology/S01-1005',
-                            'bibtex' : 'http://aclanthology.info/papers/english-tasks-all-words-and-verb-lexical-sample.bib'},
-                'se3-aw': { 'wn_version': '171',
-                            'fullname' : 'The English all words task',
-                            'answers_downloaded_from' : 'http://www.senseval.org/senseval3/data.html',
-                            'answers_downloaded_at' : '18-3-2016',
-                            'paper' : 'http://aclweb.org/anthology/W04-0811',
-                            'bibtex' : 'http://aclanthology.info/papers/the-english-all-words-task.bib'},
-}
+competitions = {'se2-ls': {'wn_version': '171',
+                           'fullname': 'SensEval 2 English lexical sample task',
+                           'answers_downloaded_from': 'http://www.hipposmond.com/senseval2/',
+                           'answers_downloaded_at': '16-3-2016',
+                           'paper': 'http://aclweb.org/anthology/S01-1004',
+                           'bibtex': 'http://aclanthology.info/papers/english-lexical-sample-task-description.bib'},
+                'se2-aw': {'wn_version': '171',
+                           'fullname': 'SensEval 2 English all words task',
+                           'answers_downloaded_from': 'http://www.hipposmond.com/senseval2/',
+                           'answers_downloaded_at': '16-3-2016',
+                           'paper': 'http://aclweb.org/anthology/S01-1005',
+                           'bibtex': 'http://aclanthology.info/papers/english-tasks-all-words-and-verb-lexical-sample.bib'},
+                'se3-aw': {'wn_version': '171',
+                           'fullname': 'The English all words task',
+                           'answers_downloaded_from': 'http://www.senseval.org/senseval3/data.html',
+                           'answers_downloaded_at': '18-3-2016',
+                           'paper': 'http://aclweb.org/anthology/W04-0811',
+                           'bibtex': 'http://aclanthology.info/papers/the-english-all-words-task.bib'},
+                'se3-ls': {'wn_version': '171',
+                           'fullname': 'The English lexical sample task',
+                           'answers_downloaded_from': 'http://www.senseval.org/senseval3/data.html',
+                           'answers_downloaded_at': '18-3-2016',
+                           'paper': 'http://aclweb.org/anthology/W04-0807',
+                           'bibtex': 'http://aclanthology.info/papers/the-senseval-3-english-lexical-sample-task.bib'},
+                }
+
 
 def show_possibilities():
     """
     show user possible competitions
     """
     information = {}
-    for competition,value in competitions.items():
+    for competition, value in competitions.items():
         information[competition] = value['paper']
 
     df = pd.DataFrame.from_dict({'categories': list(information.keys()),
@@ -40,23 +47,23 @@ def show_possibilities():
 
 
 def get_relevant_paths(competition):
-    '''
+    """
     returns dict of paths that are relevant for the analyses
     for all-words (aw) competitions and lexical sample competitions (ls)
-    
+
     :param str competition: competition to analyze. see global 'competitions'
     in 'configuration.py' for all options
 
     :rtype: dict
     :return: dict mapping to relevant paths
-    '''
-    main_dir = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+    """
+    main_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     wn_version = competitions[competition]['wn_version']
     wordnet_path = os.path.join(main_dir,
                                 'wordnets',
                                 'index.sense.%s' % wn_version)
 
-    log_path = os.path.join(main_dir,'scripts','cache',competition)
+    log_path = os.path.join(main_dir, 'scripts', 'cache', competition)
     sense_rank_path = os.path.join(main_dir,
                                    'scripts',
                                    'cache',

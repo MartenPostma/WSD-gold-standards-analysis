@@ -11,7 +11,7 @@ The external modules should be installed by running:
 pip install -r requirements.txt.
 
 ## USAGE
-Please open **WSD gold standards analysis.ipynb**
+Please visit [**WSD gold standards analysis.ipynb**](https://github.com/MartenPostma/WSD-gold-standards-analysis/blob/master/WSD%20gold%20standards%20analysis.ipynb)
 for an example of how to use it.
 
 ## TODO

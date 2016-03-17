@@ -15,9 +15,7 @@ Please visit [**WSD gold standards analysis.ipynb**](https://github.com/MartenPo
 for an example of how to use it.
 
 ## TODO
-* think about colors graphs
 * add competitions:
-  * se3-ls
   * se10-aw
   * se13-aw
   * se15-aw

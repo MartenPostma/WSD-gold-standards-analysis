@@ -2,7 +2,7 @@
 import pickle
 import os
 from collections import defaultdict
-
+from functools import lru_cache
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from IPython.display import display, HTML
 
+@lru_cache()
 class WSD_analysis:
     """
     class to provide information about a WSD competition:
@@ -60,7 +61,7 @@ class WSD_analysis:
         information = {'competition': self.competition,
                        'num_of_instances' : self.num_instances,
                        'num_of_different_lemmas' : len(self.data),
-                       'MFS baseline' : round(self.mfs_baseline,2),
+                       'MFS_baseline' : round(self.mfs_baseline,2),
                        'type_token_ratio': round(self.type_token_ratio,2)}
 
         df = pd.DataFrame.from_dict({'categories': list(information.keys()),
@@ -174,64 +175,54 @@ class WSD_analysis:
         return [100 * (freq/total)
                 for freq in list_of_freqs]
 
-    def plot_sense_ranks(self,rel_freq=False):
+    def prepare_plot_sense_ranks(self,rel_freq=False):
         """
         plot sense rank distribution
 
         :param bool rel_freq: if rel_freq is set to True,
         the relative frequencies instead of the absolute values
         """
-        x = list(self.sense_ranks.keys())
-        y = list(self.sense_ranks.values())
+        self.x = list(self.sense_ranks.keys())
+        self.y = list(self.sense_ranks.values())
         if rel_freq:
-            y = self.rel_freq(y)
+            self.y = self.rel_freq(self.y)
 
-        df = pd.DataFrame.from_dict({'rel_freq': y,
-                                     'sense_rank_classes': x})
+        self.df = pd.DataFrame.from_dict({'rel_freq': self.y,
+                                     'sense_rank_classes': self.x})
 
 
-        sns.set_style('whitegrid')
-        ax = sns.barplot(x="sense_rank_classes", y="rel_freq", data=df)
-        x_label = 'sense rank'
-        y_label = 'frequency'
+        self.x_label = 'sense rank'
+        self.y_label = 'frequency'
         if rel_freq:
-            y_label = 'relative frequency (%)'
+            self.y_label = 'relative frequency (%)'
 
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-        ax.set_title("Distribution per sense rank (%s)" % self.competition)
-        plt.legend(loc=7)
+        self.title = "Distribution per sense rank (%s)" % self.competition
 
-    def plot_pos(self,rel_freq=False):
+    def prepare_plot_pos(self,rel_freq=False):
         """
         plot pos distribution
 
         :param bool rel_freq: if rel_freq is set to True,
         the relative frequencies instead of the absolute values
         """
-        x = list(self.pos_d.keys())
-        y = list(self.pos_d.values())
+        self.x = list(self.pos_d.keys())
+        self.y = list(self.pos_d.values())
         if rel_freq:
-            y = self.rel_freq(y)
+            self.y = self.rel_freq(self.y)
 
-        df = pd.DataFrame.from_dict({'rel_freq': y,
-                                     'pos': x})
+        self.df = pd.DataFrame.from_dict({'rel_freq': self.y,
+                                     'pos': self.x})
 
 
-        sns.set_style('whitegrid')
-        ax = sns.barplot(x="pos", y="rel_freq", data=df)
-        x_label = 'part of speech'
-        y_label = 'frequency'
+        self.x_label = 'part of speech'
+        self.y_label = 'frequency'
         if rel_freq:
-            y_label = 'relative frequency (%)'
+            self.y_label = 'relative frequency (%)'
 
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-        ax.set_title("Distribution per part of speech (%s)" % self.competition)
-        plt.legend(loc=7)
+        self.title = "Distribution per part of speech (%s)" % self.competition
 
 
-    def plot_polysemy(self,rel_freq=False,pos_independent=False):
+    def prepare_plot_polysemy(self,rel_freq=False,pos_independent=False):
         """
         plot pos distribution
 
@@ -245,29 +236,63 @@ class WSD_analysis:
         if pos_independent:
             info = self.polysemy_all
 
-        x = list(info.keys())
-        y = list(info.values())
+        self.x = list(info.keys())
+        self.y = list(info.values())
         if rel_freq:
-            y = self.rel_freq(y)
+            self.y = self.rel_freq(self.y)
 
-        df = pd.DataFrame.from_dict({'rel_freq': y,
-                                     'polysemy': x})
+        df = pd.DataFrame.from_dict({'rel_freq': self.y,
+                                     'polysemy': self.x})
+
+        #set class attributes
+        if pos_independent:
+            self.title = "Distribution per polysemy class (pos independent,%s)" % self.competition
+        else:
+            self.title = "Distribution per polysemy class (pos specific, %s)" % self.competition
+
+        self.x_label = 'polysemy'
+        self.y_label = 'frequency'
+        if rel_freq:
+            self.y_label = 'relative frequency (%)'
+
+        self.df = df
 
 
+    def plot(self,category,rel_freq=False,pos_independent=False):
+        """
+        create plots, which makes use of the following class attributes:
+        1. x_label
+        2. y_label
+        3. df
+        4. title
+
+        :param str category: sense_rank | pos | polysemy
+
+        :param bool rel_freq: if rel_freq is set to True,
+        the relative frequencies instead of the absolute values
+
+        :param bool pos_independent: [only needed for polysemy graphs]
+        if set to True, the polysemy is the sum
+        of the polysemy for all pos in wordnet for a lemma, else the polysemy
+        is calculated for a specific pos (from the gold standard)
+        """
+        if category == 'polysemy':
+            plt.figure(figsize=(16, 8))
+            self.prepare_plot_polysemy(rel_freq,pos_independent)
+            color = 'y'
+        elif category == 'sense_rank':
+            self.prepare_plot_sense_ranks(rel_freq)
+            color = 'b'
+        elif category == 'pos':
+            self.prepare_plot_pos(rel_freq)
+            color = 'g'
 
         sns.set_style('whitegrid')
-        plt.figure(figsize=(16, 8))
-        ax = sns.barplot(x="polysemy", y="rel_freq", data=df)
-        x_label = 'polysemy'
-        y_label = 'frequency'
-        if rel_freq:
-            y_label = 'relative frequency (%)'
+        ax = sns.barplot(x=self.x, y=self.y, data=self.df,
+                         color=color)
+        ax.set_title(self.title)
 
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-        if pos_independent:
-            ax.set_title("Distribution per polysemy class (pos independent,%s)" % self.competition)
-        else:
-            ax.set_title("Distribution per polysemy class (pos specific, %s)" % self.competition)
+        ax.set_xlabel(self.x_label)
+        ax.set_ylabel(self.y_label)
 
         plt.legend(loc=7)

@@ -22,7 +22,6 @@ for an example of how to use it.
   * se13-aw
   * se15-aw
   * ....
-* create functionality to compare properties of WSD competitions
 
 ## CONTACT
 * Marten Postma

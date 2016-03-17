@@ -44,9 +44,9 @@ def get_relevant_paths(competition):
     returns dict of paths that are relevant for the analyses
     for all-words (aw) competitions and lexical sample competitions (ls)
     
-    :param str competition: competition to analyze. options include:
-    'se2-ls',
-    
+    :param str competition: competition to analyze. see global 'competitions'
+    in 'configuration.py' for all options
+
     :rtype: dict
     :return: dict mapping to relevant paths
     '''

@@ -63,6 +63,7 @@ def compare_properties(competitions,
     x_values = []
     y_values = []
     hue_values = []
+    plt.figure(figsize=(16, 8))
 
     for competition in competitions:
 

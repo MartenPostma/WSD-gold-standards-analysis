@@ -130,8 +130,15 @@ class WsdAnalysis:
                 # in those fields are not the same for all competitions
                 id1, id2, *keys = line.strip().split()
 
+
+                if self.competition == 'sem2015-aw':
+                    keys = [key[3:]
+                            for key in keys
+                            if key.startswith('wn:')]
+
                 if any([keys == ['U'],
-                        '%' not in line]):
+                        '%' not in line,
+                        not keys]):
                     continue
 
                 self.num_instances += 1
@@ -139,7 +146,9 @@ class WsdAnalysis:
                 # pos and lemma info
                 lemma, pos = utils.determine_lemma_pos(keys)
 
-                if self.competition in {'se2-ls', 'se3-ls'}:
+                if self.competition in {'se2-ls',
+                                        'se3-ls',
+                                        'sem2007-aw'}:
                     lemma = id2.split('.')[0]
 
                 if lemma not in self.data:

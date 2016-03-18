@@ -40,7 +40,7 @@ def load_lemma_pos2offsets(path_to_index_sense):
         for line in infile:
             key, offset, sqr, freq = line.strip().split()
             lemma, info = key.split('%')
-            pos = get_lemma_pos_of_sensekey(key)
+            lemma, pos = get_lemma_pos_of_sensekey(key)
 
             if pos != 'u':
                 lemmapos2offsets[(lemma, pos)] += 1

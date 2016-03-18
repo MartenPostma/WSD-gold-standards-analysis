@@ -16,7 +16,6 @@ for an example of how to use it.
 
 ## TODO
 * reuters wsd corpus (http://mailman.uib.no/public/corpora/2013-September/018817.html)
-* semcor1.6 (write converter to input format)
 * wordnet gloss corpus (write converted to input format)
 * check tasks 2013, 2014, 2015, 2016
 

@@ -148,7 +148,8 @@ class WsdAnalysis:
 
                 if self.competition in {'se2-ls',
                                         'se3-ls',
-                                        'sem2007-aw'}:
+                                        'sem2007-aw',
+                                        'semcor16'}:
                     lemma = id2.split('.')[0]
 
                 if lemma not in self.data:

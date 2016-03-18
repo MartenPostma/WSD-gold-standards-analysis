@@ -1,0 +1,285 @@
+.\" $Id$
+.tr ~
+.TH CXTFILE 5WN "30 Sept 1997" "WordNet 1.6" "WordNet\(tm File Formats"
+.SH NAME
+Format of semantic concordance file
+.SH DESCRIPTION
+A semantic concordance consists of texts that have been syntactically
+and semantically tagged.  The semantic tagging was done by hand, using
+various tools to annotate the English text with WordNet senses.  The
+"raw" data were reformatted and syntactically tagged before semantic
+tags were assigned.  See
+.BR semcor (7WN)
+for more information about semantic concordances.  
+
+For historical reasons, semantic concordance files are referred to as
+\fIcontext files\fP.  Some of the field element within context files
+reflect that history, as well.  
+.SS File Format
+Regardless of which files comprise a semantic concordance, and which
+words are tagged, the format of each concordance file is the same.
+The context file format follows SGML guidelines, using elements and
+attribute/value pairs to record information about the file, paragraph
+and sentence boundaries, and syntactic and semantic information.  SGML
+elements give a file its structure; attribute/value pairs provide
+additional information.  All SGML elements require both start and end
+tags.
+
+SGML attribute/value pairs are of the form:
+.nf
+		\fIattribute\fP\fB=\fP\fIvalue\fP
+.fi
+
+Our SGML format deviates from the standard in that \fIvalue\fPs are
+only enclosed in quotation marks when there may be embedded spaces.
+Due to the large number of attribute/value pairs, the presence of
+quotation marks around each \fIvalue\fP would have substantially
+increased the size of the concordances.
+.SS Nomenclature
+The structure of a context file is specified below in pseudo-BNF
+notation.  Each SGML element is on a separate line.  Terminals are
+printed in \fBboldface\fP and are represented in the file as written.
+Items in \fIitalics\fP are variables.  Upper-case strings are
+non-terminals.  
+.SS File Structure
+
+.nf
+CONTEXTFILE~~::=~~\fB<contextfile~~concordance=\fP\fIconc\fP\fB>\fP
+		CONTEXT+\fB
+		</contextfile>\fP
+
+CONTEXT~~::=~~\fB<context~~filename=\fP\fIfilename\fP~~\fBparas=yes>\fP
+		PARA+~~|~~SENT+
+		\fB</context>\fP
+
+PARA~~::=~~\fB<p~~pnum=\fP\fIparagraph_number\fP\fB>\fP
+		SENT+~~
+		\fB</p>\fP
+
+SENT~~::=~~\fB<s~~snum=\fP\fIsentence_number\fP\fB>\fP
+		SENT_TOK+ 
+		\fB</s>\fP
+
+SENT_TOK~~::=~~(~~WORD_FORM~~|~~PUNC~~)+
+
+WORD_FORM~~::=~~\fB<wf~~cmd=tag\fP~~RDF~~SEP~~POS~~\fB>\fP\fIword\fP\fB</wf>\fP
+		| ~~\fB<wf~~cmd=ignore\fP~~DC~~SEP~~POS~~\fB>\fP\fIword\fP\fB</wf>\fP
+		|~~\fB<wf~~cmd=done\fP~~RDF~~SEP~~POS~~SEM_TAG~~OT\fB>\fP\fIword\fP\fB</wf>\fP
+		|~~\fB<wf~~cmd=(update~~|~~retag)\fP~~RDF~~SEP~~POS~~TAGNOTE~~NOTE\fB>\fP\fIword\fP\fB</wf>\fP
+
+POS~~::=~~\fBpos=\fPPOS_TAG
+
+POS_TAG~~::=~~\fBCC~~|~~CD~~|~~DT~~|~~EX~~|~~FW~~|~~IN~~|~~JJ~~|~~JJR~~|~~JJS~~|~~LS~~|~~MD~~|~~MD|VB~~
+	|~~NN~~|~~NNP~~|~~NNPS|~~NNP|NP~~|~~NNP|VBN~~|~~NNS~~|~~NN|SYM~~|~~NP~~|~~NPS~~
+	|~~PDT~~|~~POS|~~PP~~|~~PR~~|~~PRP~~|~~PRP$~~|~~RB~~|~~RBR~~|~~RBS~~|~~RP
+	|~~TO~~|~~UH~~|~~VB~~|~~VBD~~|~~VBG|~~VBN~~|~~VBP~~|~~VBZ~~|~~WDT~~|~~WP|~~WP$~~|~~WRB\fP
+
+SEM_TAG~~::=~~LEMMA~~WNSN~~LEXSN~~PN~~|~~NULL
+
+LEMMA~~::=~~\fBlemma=\fP\fIlemma\fP
+
+WNSN~~::=~~\fBwnsn=\fP\fIsense_number\fP
+
+LEXSN~~::=~~\fBlexsn=\fP\fIlex_sense\fP
+
+PN~~::=~~\fBpn=\fPCATEGORY~~|~~NULL
+
+CATEGORY~~::=~~\fBperson\fP~~|~~\fBlocation\fP~~|~~\fBgroup\fP~~|~~\fBother\fP
+
+RDF~~::=~~\fBrdf=\fP\fIredefinition\fP~~|~~NULL
+
+DC~~::=~~\fBdc=\fP\fIdistance\fP~~|~~NULL
+
+SEP~~::=~~\fBsep="\fP\fIseparator_string\fP\fB"\fP~~|~~NULL
+
+TAGNOTE~~::=~~\fBtagnote=\fPTAGNOTE_TYPE
+
+TAGNOTE_TYPE~~::=~~\fBsns_miss\fP~~|~~\fBindist_sns\fP~~|~~\fBwd_miss\fP~~|~~\fBinsuffctxt\fP~~|~~\fBsense_lost\fP~~|~~\fBmisc\fP
+
+NOTE~~::=~~\fBnote="\fP\fInote\fP\fB"\fP
+
+OT~~::=~~\fBot=\fPOTHER_TAG~~|~~NULL
+
+OTHER_TAG~~::=~~\fBnotag\fP~~|~~\fBmetaphor\fP~~|~~\fBidiom\fP~~|~~\fBcomplexprep\fP~~|~~\fBforeignword\fP~~|~~\fBnonceword\fP
+
+PUNC~~::=~~\fB<punc>\fPPUNC_CHARACTER\fB</punc>\fP
+
+PUNC_CHARACTER~~::=~~[~~\fB~~,~~.~~?~~!~~,~~;~~(~~[~~)~~]~~`~~'~~$~~"~~:\fP~~]
+.fi
+.SS Interpretation of SGML Elements
+.TP 10
+\fB<contextfile~~concordance=\fP\fIconc\fP\fB>\fP
+This element indicates the beginning of a context file.
+\fIconc\fP specifies the name of the semantic concordance that the
+file is in.  A semantic concordance file contains one or more
+context elements from the same semantic concordance.  See
+.BR semcor (7WN)
+for a list of semantic concordance names.
+.TP 10
+\fB<context~~filename=\fB\fIfilename\fP~~\fBparas=yes>\fP
+This element indicates the beginning of a context.
+\fIfilename\fP is the name of the original corpora file from
+which this context was extracted.  \fBparas\fP indicates that this
+document contains paragraph delimiters.
+.TP 10
+\fB<p~~pnum=\fB\fIparagraph_number\fP\fB>\fP
+Start of a new paragraph. \fIparagraph_number\fP is an integer. The
+first paragraph in a \fBcontext\fP is numbered \fB1\fP, and paragraph
+numbers are incremented sequentially.
+.TP 10
+\fB<s~~snum=\fB\fIsentence_number\fP\fB>\fP
+Start of a new sentence. \fIsentence_number\fP is an integer.  The
+first sentence in each \fBcontext\fP is numbered \fB1\fP, and sentence
+numbers are incremented sequentially throughout the \fBcontext\fP.
+Sentence numbers \fIdo not\fP restart at \fB1\fP in each paragraph.
+.TP 10
+\fB<wf\fP~~\fIattribute/value_pairs\fP\fB>\fP\fIword\fP\fB</wf>\fP
+This element represents a word form.  \fIword\fP is the orthographic
+form as it appears in the original document.  All of the syntactic and
+semantic information is stored as attribute/value pairs described
+below.
+.RS +10
+.TP 15
+\fBcmd=\fP\fIcmd\fP
+Indicates the status of the \fBwf\fP element.
+
+.TS
+box;
+c | c
+l | l.
+\fIcmd\fP	\fBMeaning\fP
+_
+tag	word is to be tagged
+done	word is semantically tagged
+ignore	word should not be tagged
+update	used during semantic concordance development only
+retag	used during semantic concordance development only
+.TE
+.TP 15
+\fBpos=\fP\fIpos\fP 
+\fIpos\fP is the syntactic tag assigned by Eric Brill's stochastic
+part-of-speech tagger.  See 
+.SM Syntactic Tags
+below for a list of possible values.
+.TP 15
+\fBlemma=\fP\fIlemma\fP
+The base form of the word or collocation that the other
+attribute/value pairs in this \fBwf\fP pertain to.  This is the form
+of the string used to search the WordNet database.  If \fBrdf\fP is
+present, \fIlemma\fP is the base form of the redefinition.
+When \fBpn\fP is present, \fIredefinition\fP, \fIlemma\fP and
+\fIcategory\fP all have the same value.
+.TP 15
+\fBwnsn=\fP\fIsense_number\fP
+\fIsense_number\fP is the integer sense number corresponding to the
+WordNet output display. 
+.TP 15
+\fBlexsn=\fP\fIlex_sense\fP 
+\fIlex_sense\fP, when concatenated onto \fIlemma\fP using \fB%\fP as
+the concatenation character, creates a \fIsense_key\fP that indicates
+the WordNet sense to which \fIword\fP should be linked.  This is the
+semantic tag for \fIword\fP.  The format of a \fIsense_key\fP is
+described in
+.BR senseidx (5WN). 
+.TP 15
+\fBpn=\fP\fIcategory\fP 
+Indicates that \fIword\fP is a proper noun categorized as one of the
+values of CATEGORY.
+When \fBpn\fP is present, \fIredefinition\fP, \fIlemma\fP and
+\fIcategory\fP all have the same value.
+.TP 15
+\fBrdf=\fP\fIredefinition\fP 
+
+If present, \fIword\fP has been "redefined" to something else.  This
+is mainly used to define discontinuous collocations, correct
+typographical errors in the text, or to enter a string that should be
+used to search WordNet instead of \fIword\fP in order to find an
+appropriate sense for the semantic tag.  When \fBpn\fP is present,
+\fIredefinition\fP, \fIlemma\fP and \fIcategory\fP all have the same
+value.
+.TP 15
+\fBdc=\fP\fIdistance\fP
+Indicates that \fIword\fP is part of a discontinuous collocation in
+which the words comprising the collocation are not adjacent.
+\fIdistance\fP is an integer that specifies how many \fBwf\fP elements
+away the semantic tag for the collocation is.  It may be either
+negative, indicating \fBwf\fP elements prior to this one, or positive,
+indicating \fBwf\fP elements following in the file.
+.TP 15
+\fBsep="\fP\fIseparator_string\fP\fB"\fP
+Indicates that the space between this \fBwf\fP element and the next
+should be displayed as \fIseparator_string\fP.  The string may be one
+or more character.  The default word separator is one space.
+.TP 15
+\fBtagnote=\fP\fItagnote_type\fP
+A \fBtagnote\fP attribute/value pair is always present if \fIcmd\fP is
+\fBupdate\fP or \fBretag\fP.  This is used only during semantic
+concordance development, and indicates the type of problem encountered
+during semantic tagging.  See TAGNOTE_TYPE for a list of possible
+values.
+.TP 15
+\fBnote="\fP\fInote\fB"\fP
+A \fBnote\fP attribute/value pair is always present with
+\fBtagnote\fP. \fInote\fP may contain a string that provides
+additional information about the \fBtagnote\fP, or may be empty.
+.TP 15
+\fBot=\fP\fIother_tag\fP
+If present, a semantic tag cannot be assigned to \fIword\fP for one of
+the reasons listed in OTHER_TAG.
+.SS Syntactic Tags
+The following tags are assigned by Brill's stochatstic part-of-speech
+tagger.
+
+.TS
+center box;
+c | c 
+l | l.
+\fBSyntactic Tag	Interpretation\fP
+_
+CC 	Coordinating conjunction
+CD 	Cardinal number
+DT 	Determiner
+EX 	Existential "there"
+FW 	Foreign word
+IN 	Preposition or subordinating conjunction
+JJ 	Adjective
+JJR 	Adjective, comparative
+JJS 	Adjective, superlative
+LS 	List item marker
+MD 	Modal
+NN 	Noun, singular or mass
+NNP	Proper noun, singular
+NNPS	Proper noun, plural
+NNS	Noun, plural
+NP 	Proper noun, singular
+NPS 	Proper noun, plural
+PDT 	Predeterminer
+POS 	Possessive ending
+PP 	Personal pronoun
+PR	Pronoun
+PRP	Pronoun
+PRP$	Pronoun, plural
+RB 	Adverb
+RBR 	Adverb, comparative
+RBS 	Adverb, superlative
+RP 	Particle
+SYM 	Symbol
+TO 	"to"
+UH 	Interjection
+VB 	Verb, base form
+VBD 	Verb, past tense
+VBG 	Verb, gerund or present participle
+VBN 	Verb, past participle
+VBP 	Verb, non-3rd person singular present
+VBZ 	Verb, 3rd person singular present
+WDT 	Wh-determiner
+WP 	Wh-pronoun
+WP$ 	Possessive wh-pronoun
+WRB 	Wh-adverb
+.TE
+.SH SEE ALSO
+.BR escort (1WN),
+.BR senseidx (5WN),
+.BR wndb (5WN),
+.BR morphy (7WN),
+.BR semcor (7WN).

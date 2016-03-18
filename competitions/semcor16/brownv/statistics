@@ -1,0 +1,17 @@
+Total number of words (<wf>):   316814
+Total number of tagged words including other tags:    53421
+Total number of tagged words excluding "ot=notag":    41607
+Total number of words with semantic pointers to WordNet (wnsn=): 41497
+Total number of words with multiple senses:       37
+Total number of semantic tags including multiple senses: 41525
+Total number of untagged words (cmd=ignore + ot=): 135684
+Number of semantic pointers to POS noun: 0
+Number of WN senses pointed to by POS noun:        0
+Number of semantic pointers to POS verb: 41525
+Number of WN senses pointed to by POS verb:     6520
+Number of semantic pointers to POS adj: 0
+Number of WN senses pointed to by POS adj:        0
+Number of semantic pointers to POS adv: 0
+Number of WN senses pointed to by POS adv:        0
+Number of semantic pointers to POS adj_satellite: 0
+Number of WN senses pointed to by POS adj_satellite:        0

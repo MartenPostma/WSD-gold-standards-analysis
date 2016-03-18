@@ -1,0 +1,245 @@
+'\" t
+.\" $Id$
+.tr ~
+.TH SEMCOR 7WN "30 Sept 1997" "WordNet 1.6" "Miscellaneous WordNet\(tm Topics"
+.SH NAME
+semcor \- discussion of semantically tagged texts
+.SH DESCRIPTION
+A semantic concordance is a textual corpus and a lexicon so combined
+that every substantive word in the text is linked to its appropriate
+sense in the lexicon.  Thus it can be viewed either as a corpus in which
+words have been tagged syntactically and semantically, or as a lexicon
+in which example sentences can be found for many definitions.  Texts
+that were used to create the semantic concordances were extracted from
+the Brown Corpus and then linked to senses in the WordNet lexicon.
+  
+The semantic tagging was done by hand, using various tools to annotate
+the text with WordNet senses.  The "raw" data were reformatted and
+syntactically tagged (using Eric Brill's stochastic part-of-speech
+tagger) before semantic tags were assigned.  After semantic tagging,
+the files conform to the SGML-like file format described in
+.BR cxtfile (5WN).
+The tools and programs used to create the semantic concordances are
+not distributed.
+
+.BR escort (1WN)
+is a window-based browser used to search the semantic concordances for
+instances of semantically tagged word forms.  It can be used to find
+semantic tags to one or more senses of a word and optional
+co-occurring senses.
+
+.SS Semantic Concordance Organization
+The semantically tagged Brown Corpus files are divided into three
+semantic concordances based on what was tagged and when.  Each is
+stored in a separate directory by the concordance's name (\fIconc\fP).
+The concordances are:
+
+.TS
+center box ;
+c | c | c
+l | l | l.
+\fIconc\fP	\fBContents	What's Tagged\fP
+_
+brown1	103 Brown Corpus files	All open class words
+brown2	83 Brown Corpus files	All open class words
+brownv	166 Brown Corpus files	Verbs
+.TE
+
+Each directory contains the files \fBcntlist\fP, \fBtaglist\fP and
+\fBstatistics\fP, and a \fBtagfiles\fP directory.  See
+.BR cntlist (5WN)
+and
+.BR taglist (5WN)
+for information about these files.  See
+.SB STATISTICS
+for information about the contents of the \fBstatistics\fP file.
+
+The \fBtagfiles\fP directory contains the semantically tagged files.
+Each file is named using the following convention:
+
+	\fBbr-\fP\fIarticle_code\fP
+
+where \fIarticle_code\fP is a letter followed by a two digit number
+that denotes the section and article number that the text was derived
+from.  No file is in more than one semantic concordance.
+.SS Semantically Tagged Files
+An SGML-like markup language, described in
+.BR cxtfile (5WN),
+was developed for codifying semantically tagged data.  The original
+content of a Brown Corpus file, with the exception of headlines when
+they were present, is contained in its corresponding semantically
+tagged file.  The "raw" data are segmented into paragraphs and
+sentences, then sequentially numbered within the file.  Each sentence
+is separated into word forms and punctuation.  
+
+A \fIsemantic tag\fP associated with a word form indicates one or more
+senses in the WordNet database that are appropriate for that word form
+in the textual context.  Semantic tags are represented as SGML
+attribute/value pairs, and are described in detail in 
+.BR cxtfile (5WN).
+
+Only nouns, verbs, adjectives, and adverbs (open class words) can be
+semantically tagged, as these are the only classes of words
+represented in WordNet.  Proper nouns are generally not in WordNet,
+but are labeled in the semantically tagged files with one of four
+categories and assigned semantic tags to predetermined WordNet senses
+for these categories.
+
+.TS
+center box ;
+c | c | c
+l | c | l.
+\fBAttribute/Value Pair	WordNet Sense	Sense Key\fP
+_
+pn=person	1	person%1:03:00::
+pn=location	1	location%1:03:00::
+pn=group	1	group%1:03:00::
+pn=other	\fIn/a\fP	\fIn/a\fP
+.TE
+
+Strings of several words that form a collocation or phrase found in
+WordNet are joined into one word form in a semantically tagged file
+and tagged as a single unit.  In the case of discontinuous
+constituents (a collocation in which the words are not adjacent, such
+as \fIlook up\fP in the phrase \fIlook the number up\fP) the first
+word of the collocation is "redefined" as the entire collocation and
+is tagged to the appropriate WordNet sense.  The remaining words are
+marked with a special attribute/value pair that indicates which word
+form contains the semantic tag.
+.SH STATISTICS
+.TS 
+center box;
+c | c s s | c
+c | c s s | c
+c | c | c | c | c.
+\fB	Semantic Concordance\fP
+Category	_	Total
+\fB	brown1	brown2	brownv	\fP
+_
+.T&
+c | s s s s
+l | r | r | r | r.
+\fBMiscellaneous\fP
+_
+total word forms (\fB<wf>\fP)	198796	160936	316814	676546
+word forms with \fBcmd=done\fP including \fBot=\fP	122724	98235	53421	274380
+word forms with \fBcmd=done\fP  excluding \fBot=notag\fP	107118	86255	41607	234980
+word forms with semantic pointers (\fBwnsn=\fP)	106639	86000	41497	234136
+word forms tagged to multiple senses	115	551	37	703
+total semantic pointers (including multiple senses)	106725	86414	41525	234664
+untagged word forms (\fBcmd=ignore\fP + \fBot=\fP)	92154	74936	135684	302774
+_
+.T&
+c | s s s s
+l | r | r | r | r.
+\fBNumber of Semantic Pointers\fP
+_
+semantic pointers to nouns	48835	39477	0	88312	
+semantic pointers to verbs	26686	21804	41525	90015
+semantic pointers to adjectives	9886	7539	0	17425	
+semantic pointers to adverbs	11347	9245	0	20592
+semantic pointers to adjective satellites	9970	8347	0	18317
+Total semantic pointers	106724	86412	41525	234661
+_
+.T&
+c | s s s s
+l | r | r | r | r.
+\fBPointers to Proper Nouns\fP
+_
+pointers to \fBpn=person\fP	3815	2783	0	6598
+pointers to \fBpn=location\fP	600	363	0	963
+pointers to \fBpn=group\fP	740	440	0	1180
+pointers to \fBpn=other\fP	447	489	7	943
+=
+Total pointers to proper nouns	5602	4075	7	9684
+_
+.T&
+c | s s s s
+l | r | r | r | r.
+\fBUnique WordNet Senses\fP
+_
+senses pointed to by nouns	11399	9546	0	20945
+senses pointed to by verbs	5334	4790	6520	16644
+senses pointed to by adjectives	1754	1463	0	3217
+senses pointed to by adverbs	1455	1377	0	2832
+senses pointed to by adjective satellites	3451	3051	0	6502
+=
+Total senses	23393	20227	6520	50140
+.TE	
+
+The previous table was compiled from the data in the \fBstatistics\fP
+file in each concordance directory.  
+
+Note that there are 7 attribute/value pairs that assign proper nouns
+to the category "other" in the concordance \fBbrownv\fP.  These proper
+nouns were incorrectly identified as verbs by the syntactic tagger.
+See
+.BR cxtfile (5WN)
+for a detailed discussion of the attribute/value pairs.
+.SH ENVIRONMENT VARIABLES
+.TP 20
+.B WNHOME
+Base directory for WordNet.  Unix default is 
+\fB/usr/local/wordnet1.6\fP, PC default is \fBC:\ewn16\fP, Macintosh
+default is \fB:\fP.
+.TP 20
+.B WNSEARCHDIR
+Directory in which the WordNet database has been installed.  Unix
+default is \fBWNHOME/dict\fP, PC default is \fBWNHOME\edict\fP,
+Macintosh default is \fB:Database\fP.
+.TP 20
+.B SEMCORDIR
+Directory in which the semantic concordance package has been
+installed.  Unix default is \fBWNHOME/semcor\fP, PC default is
+\fBWNHOME\esemcor\fP and Macintosh default is \fB:Semcor\fP.
+.SH FILES
+All files are in \fBSEMCORDIR/\fIconc\fR on Unix platforms,
+\fBSEMCORDIR\e\fIconc\fR on PC platforms, and
+\fBSEMCORDIR:\fIconc\fR on Macintosh platforms.
+.TP 20
+.B cntlist
+file listing number of times each tagged sense occurs in semantic
+concordance \fIconc\fP
+.TP 20
+.B taglist
+file listing location of all tagged senses in semantic concordance
+\fIconc\fP
+.TP 20
+.B statistics
+statistics for tagged files in semantic concordance \fIconc\fP
+.TP 20
+.B tagfiles/br-*
+semantically tagged Brown Corpus files in semantic concordance
+\fIconc\fP (Unix)
+.TP 20
+.B tagfiles\ebr-*
+semantically tagged Brown Corpus files in semantic concordance
+\fIconc\fP (PC)
+.TP 20
+.B tagfiles:br-*
+semantically tagged Brown Corpus files in semantic concordance
+\fIconc\fP (Macintosh)
+.SH SEE ALSO
+.BR escort (1WN),
+.BR cntlist (5WN),
+.BR cxtfile (5WN),
+.BR senseidx (5WN),
+.BR sensemap (5WN),
+.BR taglist (5WN),
+.BR wnpkgs (7WN).
+.LP
+For a description of the Brown Corpus:
+.LP
+Francis, W. N., and Kuc\*vera, H. (1982). \fI"Frequency Analysis of
+English Usage: Lexicon and Grammar"\fP, Houghton Mifflin Company,
+Boston.
+.LP
+For more information on semantic concordances:
+.LP
+Miller, G.A., Leacock, C., Tengi, R., and Bunker R. T. (1993). 
+A Semantic Concordance, \fI"Proceedings of the ARPA WorkShop on
+Human Language Technology"\fP. San Francisco, Morgan Kaufman.
+.LP
+Landes, S., Leacock, C., Tengi, R. (1998).
+Building Semantic Concordances. \fI"WordNet: An Electronic Lexical
+Database"\fP, MIT Press, Cambridge, MA.

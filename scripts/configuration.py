@@ -47,6 +47,12 @@ competitions = {'se2-ls': {'wn_version': '171',
                                'answers_downloaded_at': '18-3-2016',
                                'paper': 'http://aclweb.org/anthology/S15-2049',
                                'bibtex': 'http://aclanthology.info/papers/semeval-2015-task-13-multilingual-all-words-sense-disambiguation-and-entity-linking.bib'},
+                'semcor16': {'wn_version': '16',
+                             'fullname': 'SemCor',
+                             'answers_downloaded_from': 'http://web.eecs.umich.edu/~mihalcea/downloads.html#semcor',
+                             'answers_downloaded_at': '18-3-2016',
+                             'paper': 'http://aclweb.org/anthology/H93-1061',
+                             'bibtex': 'http://aclanthology.info/papers/a-semantic-concordance.bib'},
                 }
 
 

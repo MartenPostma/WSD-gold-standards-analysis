@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def compare_basic_stats(competitions, basic_stat):
+def compare_basic_stats(competitions, basic_stat, exclude_mfs=False):
     """
 
     :param list competitions: competitions to analyze. see global 'competitions'
@@ -13,13 +13,16 @@ def compare_basic_stats(competitions, basic_stat):
 
     :param str basic_stat: options include: 'num_of_instances',
     'num_of_different_lemmas', 'mfs_baseline', 'type_token_ratio'
+
+    :param bool exclude_mfs: if set to True, all mfs instances are ignored
+    in the analysis
     """
     x = []
     y = []
 
     for competition in competitions:
 
-        instance = analysis.WsdAnalysis(competition)
+        instance = analysis.WsdAnalysis(competition, exclude_mfs)
         y_value = getattr(instance, basic_stat)
 
         x.append(competition)
@@ -44,6 +47,7 @@ def compare_basic_stats(competitions, basic_stat):
 
 def compare_properties(competitions,
                        category,
+                       exclude_mfs=False,
                        rel_freq=False,
                        pos_independent=False):
     """
@@ -53,6 +57,9 @@ def compare_properties(competitions,
     in 'configuration.py' for all options
 
     :param str category: sense_rank | polysemy | pos
+
+    :param bool exclude_mfs: if set to True, all mfs instances are ignored
+    in the analysis
 
     :param bool rel_freq: if rel_freq is set to True,
         the relative frequencies instead of the absolute values
@@ -70,7 +77,7 @@ def compare_properties(competitions,
 
     for competition in competitions:
 
-        instance = analysis.WsdAnalysis(competition)
+        instance = analysis.WsdAnalysis(competition, exclude_mfs)
 
         if category == 'polysemy':
             instance.prepare_plot_polysemy(rel_freq, pos_independent)

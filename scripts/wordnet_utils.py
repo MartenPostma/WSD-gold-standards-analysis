@@ -145,3 +145,18 @@ def avg_polysemy(polysemy_dict):
     denomenator = sum(polysemy_dict.values())
 
     return numerator / denomenator
+
+
+def print_dict(d):
+    """
+
+    :param dict d: a dictionary
+    """
+    longest_key = max(d, key=len)
+
+    length = len(longest_key) + 1
+
+    for key, value in d.items():
+        space = ' ' * (length - len(key))
+
+        print(key + space + '| ' + value )

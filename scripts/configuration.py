@@ -3,7 +3,7 @@ import os
 
 # installed or created modules
 import pandas as pd
-from IPython.display import display
+from . import wordnet_utils as utils
 
 competitions = {'se2-ls': {'wn_version': '171',
                            'fullname': 'SensEval 2 English lexical sample task',
@@ -82,10 +82,11 @@ def show_possibilities():
     for competition, value in competitions.items():
         information[competition] = value['paper']
 
-    df = pd.DataFrame.from_dict({'categories': list(information.keys()),
-                                 'values': list(information.values())})
+    # df = pd.DataFrame.from_dict({'categories': list(information.keys()),
+    #                             'values': list(information.values())})
 
-    display(df)
+    # display(df)
+    utils.print_dict(information)
 
 
 def get_relevant_paths(competition):

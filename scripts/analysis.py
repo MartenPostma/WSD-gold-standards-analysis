@@ -15,7 +15,7 @@ import pandas as pd
 from IPython.display import display
 from math import log
 from scipy import stats
-
+import pprint
 
 @lru_cache()
 class WsdAnalysis:
@@ -63,10 +63,11 @@ class WsdAnalysis:
                        'paper': self.info['paper'],
                        'bibtex': self.info['bibtex']}
 
-        df = pd.DataFrame.from_dict({'categories': list(information.keys()),
-                                     'values': list(information.values())})
+        #df = pd.DataFrame.from_dict({'categories': list(information.keys()),
+        #                             'values': list(information.values())})
 
-        display(df)
+        #display(df)
+        utils.print_dict(information)
 
     def basic_stats(self):
         """
@@ -323,12 +324,19 @@ class WsdAnalysis:
 
         if all([log_it,
                 category in {'polysemy','sense_rank'}]):
-            self.x = [log(value) for value in self.x]
-            self.y = [log(value) for value in self.y]
-            ax = sns.pointplot(x=self.x, y=self.y, data=self.df)
+            self.log_x = []
+            self.log_y = []
+            for x_value, y_value in zip(self.x, self.y):
+                if x_value:
+                    self.log_x.append(log(x_value))
+                    self.log_y.append(log(y_value))
 
-            slope, intercept, r_value, p_value, std_err = stats.linregress(self.x,
-                                                                           self.y)
+            ax = sns.pointplot(x=self.log_x,
+                               y=self.log_y,
+                               data=self.df)
+
+            slope, intercept, r_value, p_value, std_err = stats.linregress(self.log_x,
+                                                                           self.log_y)
 
             print()
             print('r-squared:" %s' % r_value**2)

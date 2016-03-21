@@ -28,8 +28,11 @@ def compare_basic_stats(competitions, basic_stat):
     df = pd.DataFrame.from_dict({'competitions': x,
                                  'values': y})
 
+    plt.figure(figsize=(16, 8))
     sns.set_style('whitegrid')
-    ax = sns.barplot(x="competitions", y="values", data=df)
+    ax = sns.barplot(x="competitions", y="values", data=df,
+                     order=sorted(competitions))
+
     x_label = 'competition'
     y_label = basic_stat
     ax.set_xlabel(x_label)
@@ -89,10 +92,15 @@ def compare_properties(competitions,
                                  'hue_values': hue_values})
 
     sns.set_style('whitegrid')
-    ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df)
+
+    if category == 'pos':
+        ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df,
+                         order= sorted(set(x_values)))
+    else:
+        ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df)
 
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     ax.set_title("Comparison of competitions %s for %s" % (' '.join(competitions),
                                                            category))
-    plt.legend(loc=7)
+    plt.legend(loc=1)

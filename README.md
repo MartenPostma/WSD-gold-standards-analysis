@@ -1,7 +1,8 @@
 # WSD gold standards analysis
 
 This module provides an [IPython Notebook](http://ipython.org/notebook.html)
-to analyze existing manually annotated gold standards
+to analyze existing manually annotated gold standards 
+(annotated with wordnet sense keys, which is why sem2010-aw is not in here)
 used to evaluate Word Sense Disambiguation.
 
 ## INSTALL
@@ -16,8 +17,6 @@ for an example of how to use it.
 
 ## TODO
 * reuters wsd corpus (http://mailman.uib.no/public/corpora/2013-September/018817.html)
-* wordnet gloss corpus (write converted to input format)
-* check tasks 2013, 2014, 2015, 2016
 
 ## CONTACT
 * Marten Postma

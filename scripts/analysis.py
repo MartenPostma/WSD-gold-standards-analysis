@@ -13,7 +13,7 @@ from functools import lru_cache
 import matplotlib.pyplot as plt
 import pandas as pd
 from IPython.display import display
-
+display.max_colwidth = 1000
 
 @lru_cache()
 class WsdAnalysis:
@@ -25,12 +25,16 @@ class WsdAnalysis:
     4. sense rank vs (relative) frequency
     5. polysemy vs (relative) frequency
 
-    :param str competition: competition to analyze. options include:
-    'se2-ls',
+    :param str competition: competition to analyze. see global 'competitions'
+    in 'configuration.py' for all options
+    :param bool exclude_mfs: if set to True, all mfs instances are ignored
+    in the analysis
     """
 
-    def __init__(self, competition):
+    def __init__(self, competition, exclude_mfs=False):
         self.competition = competition
+        self.exclude_mfs = exclude_mfs
+
         self.info = configuration.get_relevant_paths(self.competition)
 
         self.load_sense_rank_dict()
@@ -141,7 +145,6 @@ class WsdAnalysis:
                         not keys]):
                     continue
 
-                self.num_instances += 1
 
                 # pos and lemma info
                 lemma, pos = utils.determine_lemma_pos(keys)
@@ -151,9 +154,6 @@ class WsdAnalysis:
                                         'sem2007-aw',
                                         'semcor16'}:
                     lemma = id2.split('.')[0]
-
-                if lemma not in self.data:
-                    self.data[lemma] = defaultdict(int)
 
                 # sense rank info
                 sense_rank = 0
@@ -167,6 +167,15 @@ class WsdAnalysis:
                 pol = self.polysemy_d[(lemma, pos)]
                 pol_all = self.polysemy_d[(lemma, 'all')]
 
+
+                if all([self.exclude_mfs,
+                        sense_rank == 1]):
+                    continue
+
+                if lemma not in self.data:
+                    self.data[lemma] = defaultdict(int)
+
+                self.num_instances += 1
                 self.data[lemma][sense_rank] += 1
                 self.sense_ranks[sense_rank] += 1
                 self.pos_d[pos] += 1
@@ -283,7 +292,6 @@ class WsdAnalysis:
         is calculated for a specific pos (from the gold standard)
         """
         if category == 'polysemy':
-            plt.figure(figsize=(16, 8))
             self.prepare_plot_polysemy(rel_freq, pos_independent)
             color = 'y'
         elif category == 'sense_rank':
@@ -293,6 +301,7 @@ class WsdAnalysis:
             self.prepare_plot_pos(rel_freq)
             color = 'g'
 
+        plt.figure(figsize=(16, 8))
         sns.set_style('whitegrid')
         ax = sns.barplot(x=self.x, y=self.y, data=self.df,
                          color=color)

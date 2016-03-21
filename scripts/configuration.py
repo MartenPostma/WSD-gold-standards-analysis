@@ -53,6 +53,12 @@ competitions = {'se2-ls': {'wn_version': '171',
                              'answers_downloaded_at': '18-3-2016',
                              'paper': 'http://aclweb.org/anthology/H93-1061',
                              'bibtex': 'http://aclanthology.info/papers/a-semantic-concordance.bib'},
+                'pwgc': {'wn_version': '30',
+                         'fullname': 'Princeton WordNet Gloss Corpus',
+                         'answers_downloaded_from': 'http://wordnetcode.princeton.edu/glosstag-files/WordNet-3.0-glosstag.zip',
+                         'answers_downloaded_at': '21-3-2016',
+                         'paper': 'http://wordnetcode.princeton.edu/glosstag-files/Readme.txt',
+                         'bibtex': 'no bibtex found'}
                 }
 
 

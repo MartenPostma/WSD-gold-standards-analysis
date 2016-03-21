@@ -1,0 +1,135 @@
+Logging to file 'results_0103.txt'
+mysql> DROP TABLE IF EXISTS tagsPerItem_tmp;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TEMPORARY TABLE tagsPerItem_tmp
+    ->     SELECT DISTINCT items.name AS Item, topic, count(taggingActs.id) as NumTags
+    ->     FROM taggingActs, items, tags
+    ->     WHERE taggingActs.itemId = items.id AND
+    ->     taggingActs.tagId = tags.id AND
+    ->     tags.name <> 'unanswered'
+    ->     GROUP BY Item;
+Query OK, 12110 rows affected (1.53 sec)
+Records: 12110  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> SELECT topic, count(Item) As itemsFinished
+    ->     FROM tagsPerItem_tmp
+    ->     WHERE NumTags > 1
+    ->     GROUP BY topic;
++---------------+---------------+
+| topic         | itemsFinished |
++---------------+---------------+
+| bank.n        |           298 |
+| bill.n        |           300 |
+| bond.n        |           294 |
+| check.n       |           300 |
+| chip.n        |           300 |
+| club.n        |           276 |
+| coach.n       |           258 |
+| competition.n |           300 |
+| conversion.n  |           300 |
+| country.n     |           300 |
+| crew.n        |           300 |
+| delivery.n    |           300 |
+| division.n    |           270 |
+| fan.n         |           300 |
+| fishing.n     |           239 |
+| goal.n        |           300 |
+| half.n        |           300 |
+| level.n       |           299 |
+| manager.n     |           300 |
+| market.n      |           300 |
+| package.n     |           300 |
+| performance.n |           300 |
+| phase.n       |           300 |
+| pitch.n       |           277 |
+| receiver.n    |           297 |
+| record.n      |           300 |
+| reserve.n     |           295 |
+| return.n      |           300 |
+| right.n       |           300 |
+| running.n     |           300 |
+| score.n       |           286 |
+| share.n       |           300 |
+| star.n        |           300 |
+| strike.n      |           300 |
+| striker.n     |           300 |
+| target.n      |           300 |
+| tie.n         |           300 |
+| title.n       |           300 |
+| top.n         |           300 |
+| transfer.n    |           296 |
+| will.n        |           300 |
++---------------+---------------+
+41 rows in set (0.03 sec)
+
+mysql> 
+mysql> DROP TABLE IF EXISTS tagsPerItem_tmp;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TEMPORARY TABLE tagsPerItem_tmp
+    ->     SELECT DISTINCT items.name AS Item, topic, count(taggingActs.id) as NumTags
+    ->     FROM taggingActs, items, tags
+    ->     WHERE taggingActs.itemId = items.id AND
+    ->     taggingActs.tagId = tags.id AND
+    ->     tags.name <> 'unanswered' AND
+    ->     tags.name <> 'unclear' AND
+    ->     tags.name <> 'unlisted-sense'
+    ->     GROUP BY Item;
+Query OK, 11287 rows affected (0.71 sec)
+Records: 11287  Duplicates: 0  Warnings: 0
+
+mysql> 
+mysql> SELECT topic, count(Item) As itemsFinished
+    ->     FROM tagsPerItem_tmp
+    ->     WHERE NumTags > 1
+    ->     GROUP BY topic;
++---------------+---------------+
+| topic         | itemsFinished |
++---------------+---------------+
+| bank.n        |           279 |
+| bill.n        |           249 |
+| bond.n        |           244 |
+| check.n       |           257 |
+| chip.n        |           231 |
+| club.n        |           261 |
+| coach.n       |           248 |
+| competition.n |           291 |
+| conversion.n  |           284 |
+| country.n     |           289 |
+| crew.n        |           279 |
+| delivery.n    |           229 |
+| division.n    |           263 |
+| fan.n         |           227 |
+| fishing.n     |           224 |
+| goal.n        |           297 |
+| half.n        |           287 |
+| level.n       |           249 |
+| manager.n     |           296 |
+| market.n      |           276 |
+| package.n     |           291 |
+| performance.n |           277 |
+| phase.n       |           269 |
+| pitch.n       |           103 |
+| receiver.n    |           293 |
+| record.n      |           287 |
+| reserve.n     |           269 |
+| return.n      |           293 |
+| right.n       |           224 |
+| running.n     |           197 |
+| score.n       |           278 |
+| share.n       |           297 |
+| star.n        |           283 |
+| strike.n      |           218 |
+| striker.n     |           293 |
+| target.n      |           272 |
+| tie.n         |           241 |
+| title.n       |           233 |
+| top.n         |           261 |
+| transfer.n    |           287 |
+| will.n        |           139 |
++---------------+---------------+
+41 rows in set (0.03 sec)
+
+mysql> notee;

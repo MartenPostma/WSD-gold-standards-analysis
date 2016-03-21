@@ -58,7 +58,13 @@ competitions = {'se2-ls': {'wn_version': '171',
                          'answers_downloaded_from': 'http://wordnetcode.princeton.edu/glosstag-files/WordNet-3.0-glosstag.zip',
                          'answers_downloaded_at': '21-3-2016',
                          'paper': 'http://wordnetcode.princeton.edu/glosstag-files/Readme.txt',
-                         'bibtex': 'no bibtex found'}
+                         'bibtex': 'no bibtex found'},
+                'reuters': {'wn_version': '171',
+                            'fullname': 'Reuters',
+                            'answers_downloaded_from': 'http://www.dianamccarthy.co.uk/downloads/hlt2005releasev2.tgz',
+                            'answers_downloaded_at': '21-3-2016',
+                            'paper': 'http://aclweb.org/anthology/H05-1053',
+                            'bibtex': 'http://aclanthology.info/papers/domain-specific-sense-distributions-and-predominant-sense-acquisition.bib'}
                 }
 
 

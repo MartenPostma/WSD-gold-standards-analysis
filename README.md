@@ -15,9 +15,6 @@ pip install -r requirements.txt.
 Please visit [**WSD gold standards analysis.ipynb**](https://github.com/MartenPostma/WSD-gold-standards-analysis/blob/master/WSD%20gold%20standards%20analysis.ipynb)
 for an example of how to use it.
 
-## TODO
-* reuters wsd corpus (http://mailman.uib.no/public/corpora/2013-September/018817.html)
-
 ## CONTACT
 * Marten Postma
 * m.c.postma@vu.nl

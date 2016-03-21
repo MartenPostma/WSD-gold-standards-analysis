@@ -1,0 +1,12 @@
+This tar file contains the original release tar file (domainhltGS.tar.gz) for the 2005 paper:
+
+Rob Koeling, Diana McCarthy, and John Carroll (2005) Domain-Specific Sense Distributions and Predominant Sense Acquisition. In Proceedings of the Human Language Technology Conference and Conference on Empirical Methods in Natural Language Processing. HLT/EMNLP 2005 pp 419-426
+
+We have now wrapped this within this 2nd release tar file to provide:
+
+i) confirmation that it was actually the gold_standard_clean.txt from the included tar release that was used to generate the results in the *final* version of that HLT/EMNLP paper
+
+ii) the file sense_frequency_results_0103_clean.gold
+which contains the gold standard data from gold_standard_clean.txt but in a format that we used for evaluation of our predominant sense method in that 2005 paper. This file comprises the sense distributions from the gold standard data but unlike gold_standard_clean.txt does not have the sense labels associated with sentence ids.
+
+Rob Koeling and Diana McCarthy, 16 April 2013

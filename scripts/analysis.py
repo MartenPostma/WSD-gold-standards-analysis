@@ -114,8 +114,8 @@ class WsdAnalysis:
         """
         process answer file from sval competition:
         1. obtain sense rank distribution
-        2. [todo]: obtain polysemy distribution
-        3. [todo]: pos distribution
+        2. obtain polysemy distribution
+        3. pos distribution
 
         """
         self.num_instances = 0
@@ -152,7 +152,8 @@ class WsdAnalysis:
                 if self.competition in {'se2-ls',
                                         'se3-ls',
                                         'sem2007-aw',
-                                        'semcor16'}:
+                                        'semcor16',
+                                        'reuters'}:
                     lemma = id2.split('.')[0]
 
                 # sense rank info

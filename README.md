@@ -6,7 +6,8 @@ to analyze existing manually annotated gold standards
 used to evaluate Word Sense Disambiguation.
 
 ## INSTALL
-This module was written in Python 3.4.
+Cloning this repo took 1 minute and 45 seconds on my machine.
+In addition, this module was written in Python 3.4.
 Everything should work by installing [Anaconda](https://www.continuum.io/downloads).
 Alternatively, the external modules should be installed by running:
 

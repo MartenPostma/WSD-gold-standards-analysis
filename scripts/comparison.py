@@ -93,11 +93,8 @@ def compare_properties(competitions,
 
     sns.set_style('whitegrid')
 
-    if category == 'pos':
-        ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df,
+    ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df,
                          order= sorted(set(x_values)))
-    else:
-        ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df)
 
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)

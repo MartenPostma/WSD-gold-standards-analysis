@@ -7,7 +7,8 @@ used to evaluate Word Sense Disambiguation.
 
 ## INSTALL
 This module was written in Python 3.4.
-The external modules should be installed by running:
+Everything should work by installing [Anaconda](https://www.continuum.io/downloads).
+Alternatively, the external modules should be installed by running:
 
 pip install -r requirements.txt.
 

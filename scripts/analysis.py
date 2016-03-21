@@ -13,7 +13,9 @@ from functools import lru_cache
 import matplotlib.pyplot as plt
 import pandas as pd
 from IPython.display import display
-display.max_colwidth = 1000
+from math import log
+from scipy import stats
+
 
 @lru_cache()
 class WsdAnalysis:
@@ -44,6 +46,8 @@ class WsdAnalysis:
         self.mfs_baseline = 100 * (self.sense_ranks[1] / self.num_instances)
         self.type_token_ratio = self.num_instances / len(self.data)
         self.num_of_different_lemmas = len(self.data)
+        self.avg_pol_all = utils.avg_polysemy(self.polysemy_all)
+        self.avg_pol = utils.avg_polysemy(self.polysemy)
 
     def metadata(self):
         """
@@ -73,7 +77,9 @@ class WsdAnalysis:
                        'num_of_instances': self.num_instances,
                        'num_of_different_lemmas': len(self.data),
                        'MFS_baseline': round(self.mfs_baseline, 2),
-                       'type_token_ratio': round(self.type_token_ratio, 2)}
+                       'type_token_ratio': round(self.type_token_ratio, 2),
+                       'avg_polysemy_all': round(self.avg_pol_all,2),
+                       'avg_polysemy': round(self.avg_pol,2)}
 
         df = pd.DataFrame.from_dict({'categories': list(information.keys()),
                                      'values': list(information.values())})
@@ -153,7 +159,8 @@ class WsdAnalysis:
                                         'se3-ls',
                                         'sem2007-aw',
                                         'semcor16',
-                                        'reuters'}:
+                                        'reuters',
+                                        'wordnet30'}:
                     lemma = id2.split('.')[0]
 
                 # sense rank info
@@ -274,7 +281,11 @@ class WsdAnalysis:
 
         self.df = df
 
-    def plot(self, category, rel_freq=False, pos_independent=False):
+    def plot(self,
+             category,
+             rel_freq=False,
+             pos_independent=False,
+             log_it=False):
         """
         create plots, which makes use of the following class attributes:
         1. x_label
@@ -291,6 +302,10 @@ class WsdAnalysis:
         if set to True, the polysemy is the sum
         of the polysemy for all pos in wordnet for a lemma, else the polysemy
         is calculated for a specific pos (from the gold standard)
+
+        :param bool log_it: logarithm of a number is plotted instead of the
+        absolute number itself
+
         """
         if category == 'polysemy':
             self.prepare_plot_polysemy(rel_freq, pos_independent)
@@ -302,13 +317,36 @@ class WsdAnalysis:
             self.prepare_plot_pos(rel_freq)
             color = 'g'
 
+
         plt.figure(figsize=(16, 8))
         sns.set_style('whitegrid')
-        ax = sns.barplot(x=self.x, y=self.y, data=self.df,
-                         color=color)
-        ax.set_title(self.title)
 
-        ax.set_xlabel(self.x_label)
-        ax.set_ylabel(self.y_label)
+        if all([log_it,
+                category in {'polysemy','sense_rank'}]):
+            self.x = [log(value) for value in self.x]
+            self.y = [log(value) for value in self.y]
+            ax = sns.pointplot(x=self.x, y=self.y, data=self.df)
 
-        plt.legend(loc=7)
+            slope, intercept, r_value, p_value, std_err = stats.linregress(self.x,
+                                                                           self.y)
+
+            print()
+            print('r-squared:" %s' % r_value**2)
+            print('p-value: %s' % p_value)
+
+            ax.set_title('log of '+ self.title)
+
+            ax.set_xlabel('log of '+ self.x_label)
+            ax.set_ylabel('log of '+ self.y_label)
+
+        else:
+
+            ax = sns.barplot(x=self.x, y=self.y, data=self.df,
+                             color=color)
+
+            ax.set_title(self.title)
+
+            ax.set_xlabel(self.x_label)
+            ax.set_ylabel(self.y_label)
+
+            plt.legend(loc=7)

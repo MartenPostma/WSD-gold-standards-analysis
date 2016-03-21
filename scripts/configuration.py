@@ -64,7 +64,13 @@ competitions = {'se2-ls': {'wn_version': '171',
                             'answers_downloaded_from': 'http://www.dianamccarthy.co.uk/downloads/hlt2005releasev2.tgz',
                             'answers_downloaded_at': '21-3-2016',
                             'paper': 'http://aclweb.org/anthology/H05-1053',
-                            'bibtex': 'http://aclanthology.info/papers/domain-specific-sense-distributions-and-predominant-sense-acquisition.bib'}
+                            'bibtex': 'http://aclanthology.info/papers/domain-specific-sense-distributions-and-predominant-sense-acquisition.bib'},
+                'wordnet30': {'wn_version': '30',
+                            'fullname': 'Wordnet version 3.0',
+                            'answers_downloaded_from': 'http://wordnetcode.princeton.edu/3.0/WordNet-3.0.tar.gz',
+                            'answers_downloaded_at': '21-3-2016',
+                            'paper': 'http://aclweb.org/anthology/H94-1111',
+                            'bibtex': 'http://aclanthology.info/papers/wordnet-a-lexical-database-for-english-h94-1111.bib'}
                 }
 
 

@@ -125,3 +125,23 @@ def rel_freq(list_of_freqs):
     total = sum(list_of_freqs)
     return [100 * (freq/total)
             for freq in list_of_freqs]
+
+
+def avg_polysemy(polysemy_dict):
+    """
+    compute average polysemy
+
+    .. doctest::
+       >>> avg_polysemy({1:2,2:2})
+       1.5
+
+    :param collections.defaultdict polysemy_dict: mapping from polysemy class
+    to number of instances in that class
+
+    :rtype: float
+    :return: average polysemy
+    """
+    numerator = sum([key*value for key,value in polysemy_dict.items()])
+    denomenator = sum(polysemy_dict.values())
+
+    return numerator / denomenator

@@ -21,7 +21,6 @@ def compare_basic_stats(competitions, basic_stat, exclude_mfs=False):
     y = []
 
     for competition in competitions:
-
         instance = analysis.WsdAnalysis(competition, exclude_mfs)
         y_value = getattr(instance, basic_stat)
 
@@ -40,8 +39,9 @@ def compare_basic_stats(competitions, basic_stat, exclude_mfs=False):
     y_label = basic_stat
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
-    ax.set_title("Comparison of competitions %s for %s" % (' '.join(competitions),
-                                                           basic_stat))
+    ax.set_title(
+        "Comparison of competitions %s for %s" % (' '.join(competitions),
+                                                  basic_stat))
     plt.legend(loc=7)
 
 
@@ -101,10 +101,11 @@ def compare_properties(competitions,
     sns.set_style('whitegrid')
 
     ax = sns.barplot(x="x_values", y="y_values", hue='hue_values', data=df,
-                         order= sorted(set(x_values)))
+                     order=sorted(set(x_values)))
 
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
-    ax.set_title("Comparison of competitions %s for %s" % (' '.join(competitions),
-                                                           category))
+    ax.set_title(
+        "Comparison of competitions %s for %s" % (' '.join(competitions),
+                                                  category))
     plt.legend(loc=1)

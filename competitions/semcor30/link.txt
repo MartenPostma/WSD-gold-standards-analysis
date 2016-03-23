@@ -1,0 +1,1 @@
+http://web.eecs.umich.edu/~mihalcea/downloads/semcor/semcor3.0.tar.gz

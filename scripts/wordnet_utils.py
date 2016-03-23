@@ -39,7 +39,6 @@ def load_lemma_pos2offsets(path_to_index_sense):
     with open(path_to_index_sense) as infile:
         for line in infile:
             key, offset, sqr, freq = line.strip().split()
-            lemma, info = key.split('%')
             lemma, pos = get_lemma_pos_of_sensekey(key)
 
             if pos != 'u':
@@ -82,8 +81,10 @@ def determine_lemma_pos(list_of_sensekeys):
 def get_lemma_pos_of_sensekey(sense_key):
     """
     lemma and pos are determined for a wordnet sense key
-    >>> get_lemma_pos_of_sensekey('life%1:09:00::')
-    ('life','n')
+
+    .. doctest::
+        >>> get_lemma_pos_of_sensekey('life%1:09:00::')
+        ('life','n')
 
     :param str sense_key: wordnet sense key
 
@@ -114,8 +115,9 @@ def rel_freq(list_of_freqs):
     """
     given list of frequencies, return return relative frequencies
 
-    >>> rel_freq([1, 2, 3, 4])
-    [10, 20, 30, 40]
+    .. doctest::
+        >>> rel_freq([1, 2, 3, 4])
+        [10, 20, 30, 40]
 
     :param list list_of_freqs: list of numbers
 
@@ -123,7 +125,7 @@ def rel_freq(list_of_freqs):
     :return: list of relative frequencies
     """
     total = sum(list_of_freqs)
-    return [100 * (freq/total)
+    return [100 * (freq / total)
             for freq in list_of_freqs]
 
 
@@ -132,8 +134,8 @@ def avg_polysemy(polysemy_dict):
     compute average polysemy
 
     .. doctest::
-       >>> avg_polysemy({1:2,2:2})
-       1.5
+        >>> avg_polysemy(defaultdict(int, {1: 2, 2: 2}))
+        1.5
 
     :param collections.defaultdict polysemy_dict: mapping from polysemy class
     to number of instances in that class
@@ -141,10 +143,10 @@ def avg_polysemy(polysemy_dict):
     :rtype: float
     :return: average polysemy
     """
-    numerator = sum([key*value for key,value in polysemy_dict.items()])
-    denomenator = sum(polysemy_dict.values())
+    numerator = sum([key * value for key, value in polysemy_dict.items()])
+    denominator = sum(polysemy_dict.values())
 
-    return numerator / denomenator
+    return numerator / denominator
 
 
 def print_dict(d):
@@ -159,4 +161,4 @@ def print_dict(d):
     for key, value in d.items():
         space = ' ' * (length - len(key))
 
-        print(key + space + '| ' + value )
+        print(key + space + '| ' + value)

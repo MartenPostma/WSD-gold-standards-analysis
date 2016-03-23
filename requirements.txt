@@ -1,3 +1,5 @@
 seaborn == 0.6.0
 matplotlib == 1.5.1
 pandas == 0.17.0
+IPython == 4.0.3
+scipy == 0.17.0

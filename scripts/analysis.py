@@ -1,11 +1,6 @@
 # created or installed modules
-import warnings
-warnings.filterwarnings("ignore")
 from . import configuration
 from . import wordnet_utils as utils
-import seaborn as sns
-
-# stdlib
 import pickle
 import os
 from collections import defaultdict
@@ -15,7 +10,10 @@ import pandas as pd
 from IPython.display import display
 from math import log
 from scipy import stats
-import pprint
+import warnings
+warnings.filterwarnings("ignore")
+import seaborn as sns
+
 
 @lru_cache()
 class WsdAnalysis:
@@ -39,8 +37,16 @@ class WsdAnalysis:
 
         self.info = configuration.get_relevant_paths(self.competition)
 
-        self.load_sense_rank_dict()
-        self.load_polysemy_dict()
+        self.sense_rank_d = self.load_sense_rank_dict()
+        self.polysemy_d = self.load_polysemy_dict()
+
+        self.num_instances = 0
+        self.data = {}
+        self.sense_ranks = defaultdict(int)
+        self.polysemy_all = defaultdict(int)
+        self.polysemy = defaultdict(int)
+        self.pos_d = defaultdict(int)
+
         self.process()
 
         self.mfs_baseline = 100 * (self.sense_ranks[1] / self.num_instances)
@@ -63,10 +69,10 @@ class WsdAnalysis:
                        'paper': self.info['paper'],
                        'bibtex': self.info['bibtex']}
 
-        #df = pd.DataFrame.from_dict({'categories': list(information.keys()),
+        # df = pd.DataFrame.from_dict({'categories': list(information.keys()),
         #                             'values': list(information.values())})
 
-        #display(df)
+        # display(df)
         utils.print_dict(information)
 
     def basic_stats(self):
@@ -79,8 +85,8 @@ class WsdAnalysis:
                        'num_of_different_lemmas': len(self.data),
                        'MFS_baseline': round(self.mfs_baseline, 2),
                        'type_token_ratio': round(self.type_token_ratio, 2),
-                       'avg_polysemy_all': round(self.avg_pol_all,2),
-                       'avg_polysemy': round(self.avg_pol,2)}
+                       'avg_polysemy_all': round(self.avg_pol_all, 2),
+                       'avg_polysemy': round(self.avg_pol, 2)}
 
         df = pd.DataFrame.from_dict({'categories': list(information.keys()),
                                      'values': list(information.values())})
@@ -91,31 +97,41 @@ class WsdAnalysis:
         """
         load sense rank dict from cache if existing
         else compute it and save it in cache
+
+        :rtype: dict
+        :rtype: mapping wordnet key -> sense rank
         """
         index_sense = self.info['wordnet_path']
         if os.path.exists(self.info['sense_rank_path']):
-            self.sense_rank_d = pickle.load(open(self.info['sense_rank_path'],
+            sense_rank_d = pickle.load(open(self.info['sense_rank_path'],
                                                  'rb'))
 
         else:
-            self.sense_rank_d = utils.get_sense_rank_dict(index_sense)
+            sense_rank_d = utils.get_sense_rank_dict(index_sense)
             with open(self.info['sense_rank_path'], 'wb') as outfile:
-                pickle.dump(self.sense_rank_d, outfile)
+                pickle.dump(sense_rank_d, outfile)
+
+        return sense_rank_d
 
     def load_polysemy_dict(self):
         """
         load polysemy dict from cache if existing
         else compute it and save it in cache
+
+        :rtype: collections.defaultdict
+        :return: mapping of (lemma,pos) to number of offsets they refer to
         """
         index_sense = self.info['wordnet_path']
         if os.path.exists(self.info['polysemy_path']):
-            self.polysemy_d = pickle.load(open(self.info['polysemy_path'],
+            polysemy_d = pickle.load(open(self.info['polysemy_path'],
                                                'rb'))
 
         else:
-            self.polysemy_d = utils.load_lemma_pos2offsets(index_sense)
+            polysemy_d = utils.load_lemma_pos2offsets(index_sense)
             with open(self.info['polysemy_path'], 'wb') as outfile:
-                pickle.dump(self.polysemy_d, outfile)
+                pickle.dump(polysemy_d, outfile)
+
+        return polysemy_d
 
     def process(self):
         """
@@ -125,22 +141,14 @@ class WsdAnalysis:
         3. pos distribution
 
         """
-        self.num_instances = 0
-        self.data = {}
-        self.sense_ranks = defaultdict(int)
-
-        self.polysemy_all = defaultdict(int)
-        self.polysemy = defaultdict(int)
-        self.pos_d = defaultdict(int)
-
         with open(self.info['answers_path']) as infile:
             for line in infile:
 
                 # lemma info
-                # the variables id1 and id2 are so general because the information
-                # in those fields are not the same for all competitions
+                # the variables id1 and id2 are so general
+                # because the information in those fields
+                # are not the same for all competitions
                 id1, id2, *keys = line.strip().split()
-
 
                 if self.competition == 'sem2015-aw':
                     keys = [key[3:]
@@ -151,7 +159,6 @@ class WsdAnalysis:
                         '%' not in line,
                         not keys]):
                     continue
-
 
                 # pos and lemma info
                 lemma, pos = utils.determine_lemma_pos(keys)
@@ -175,7 +182,6 @@ class WsdAnalysis:
                 # polysemy info
                 pol = self.polysemy_d[(lemma, pos)]
                 pol_all = self.polysemy_d[(lemma, 'all')]
-
 
                 if all([self.exclude_mfs,
                         sense_rank == 1]):
@@ -318,12 +324,11 @@ class WsdAnalysis:
             self.prepare_plot_pos(rel_freq)
             color = 'g'
 
-
         plt.figure(figsize=(16, 8))
         sns.set_style('whitegrid')
 
         if all([log_it,
-                category in {'polysemy','sense_rank'}]):
+                category in {'polysemy', 'sense_rank'}]):
             self.log_x = []
             self.log_y = []
             for x_value, y_value in zip(self.x, self.y):
@@ -335,17 +340,18 @@ class WsdAnalysis:
                                y=self.log_y,
                                data=self.df)
 
-            slope, intercept, r_value, p_value, std_err = stats.linregress(self.log_x,
-                                                                           self.log_y)
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                self.log_x,
+                self.log_y)
 
             print()
-            print('r-squared:" %s' % r_value**2)
+            print('r-squared:" %s' % r_value ** 2)
             print('p-value: %s' % p_value)
 
-            ax.set_title('log of '+ self.title)
+            ax.set_title('log of ' + self.title)
 
-            ax.set_xlabel('log of '+ self.x_label)
-            ax.set_ylabel('log of '+ self.y_label)
+            ax.set_xlabel('log of ' + self.x_label)
+            ax.set_ylabel('log of ' + self.y_label)
 
         else:
 

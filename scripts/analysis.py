@@ -11,6 +11,7 @@ from IPython.display import display
 from math import log
 from scipy import stats
 import warnings
+
 warnings.filterwarnings("ignore")
 import seaborn as sns
 
@@ -50,7 +51,7 @@ class WsdAnalysis:
         self.process()
 
         self.mfs_baseline = 100 * (self.sense_ranks[1] / self.num_instances)
-        self.type_token_ratio = self.num_instances / len(self.data)
+        self.avg_num_instances_per_lemma = self.num_instances / len(self.data)
         self.num_of_different_lemmas = len(self.data)
         self.avg_pol_all = utils.avg_polysemy(self.polysemy_all)
         self.avg_pol = utils.avg_polysemy(self.polysemy)
@@ -80,13 +81,14 @@ class WsdAnalysis:
         print basic stats about competition
 
         """
-        information = {'competition': self.competition,
-                       'num_of_instances': self.num_instances,
-                       'num_of_different_lemmas': len(self.data),
-                       'MFS_baseline': round(self.mfs_baseline, 2),
-                       'type_token_ratio': round(self.type_token_ratio, 2),
-                       'avg_polysemy_all': round(self.avg_pol_all, 2),
-                       'avg_polysemy': round(self.avg_pol, 2)}
+        information = dict(competition=self.competition,
+                           num_of_instances=self.num_instances,
+                           num_of_different_lemmas=len(self.data),
+                           MFS_baseline=round(self.mfs_baseline, 2),
+                           avg_num_instances_per_lemma=round(
+                               self.avg_num_instances_per_lemma, 2),
+                           avg_polysemy_all=round(self.avg_pol_all, 2),
+                           avg_polysemy=round(self.avg_pol, 2))
 
         df = pd.DataFrame.from_dict({'categories': list(information.keys()),
                                      'values': list(information.values())})
@@ -104,7 +106,7 @@ class WsdAnalysis:
         index_sense = self.info['wordnet_path']
         if os.path.exists(self.info['sense_rank_path']):
             sense_rank_d = pickle.load(open(self.info['sense_rank_path'],
-                                                 'rb'))
+                                            'rb'))
 
         else:
             sense_rank_d = utils.get_sense_rank_dict(index_sense)
@@ -124,7 +126,7 @@ class WsdAnalysis:
         index_sense = self.info['wordnet_path']
         if os.path.exists(self.info['polysemy_path']):
             polysemy_d = pickle.load(open(self.info['polysemy_path'],
-                                               'rb'))
+                                          'rb'))
 
         else:
             polysemy_d = utils.load_lemma_pos2offsets(index_sense)

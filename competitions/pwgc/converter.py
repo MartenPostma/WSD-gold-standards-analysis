@@ -2,13 +2,20 @@
 goal is to convert the princeton wordnet gloss corpus
 into the following format
 DOCUMENT_ID LEMMA.IDENTIFIER KEY1 KEY2 KEYN
+
+
+sensekey
+    -> sentence
+        -> (corpus, docsrc, instance_id)
+        in this case, the corpus is 'semcor30'
+
 '''
 
-#lemma is of format: "great%1|great%3"
-#focus on 'gloss/def' and 'gloss/ex' elements
-#there can be more than one sense key
+# lemma is of format: "great%1|great%3"
+# focus on 'gloss/def' and 'gloss/ex' elements
+# there can be more than one sense key
 
-#gunzip WordNet-3.0.gz before running this script
+# gunzip WordNet-3.0.gz before running this script
 
 from lxml import etree
 from collections import defaultdict
@@ -66,7 +73,7 @@ def get_lemma_pos_of_sensekey(sense_key):
     return lemma, this_pos
 
 with open('answers','w') as outfile:
-    for doc_id, path in paths:
+    for docsrc, path in paths:
         doc = etree.parse(gzip.open(path))
         for category in categories:
                 xpath_expr = template.format(**locals())
@@ -116,18 +123,26 @@ with open('answers','w') as outfile:
                                 token = id_els[-1].tail
 
                                 if tag == 'man':
-                                    sensekeys = [id_el.get('sk')
+                                    sensekeys = [(id_el.get('id'), id_el.get('sk'))
                                                  for id_el in id_els]
                                     lemma = id_els[0].get('lemma')
 
-                                    for sensekey in sensekeys:
+                                    for identifier, sensekey in sensekeys:
+
                                         training_freq[sensekey] += 1
                                         ir, pos = get_lemma_pos_of_sensekey(sensekey)
 
-                                        key2indices[(sensekey, pos)].add((index, lemma))
+                                        instance_id = '{lemma}.{pos}.{docsrc}.{identifier}'.format(**locals())
 
-                                    key_string = ' '.join(sensekeys)
-                                    output = '{doc_id} {iden} {key_string}\n'.format(**locals())
+                                        key2indices[(sensekey, pos)].add((index,
+                                                                          lemma,
+                                                                          instance_id,
+                                                                          docsrc))
+
+                                    key_string = ' '.join([sensekey
+                                                           for (identifier, sensekey)
+                                                           in sensekeys])
+                                    output = '{docsrc} {iden} {key_string}\n'.format(**locals())
                                     outfile.write(output)
 
                             else:
@@ -136,7 +151,7 @@ with open('answers','w') as outfile:
                             sentence.append(token)
 
                     for (sensekey, pos), info in key2indices.items():
-                        for (index, lemma) in info:
+                        for (index, lemma, instance_id, docsrc) in info:
 
                             target_sent = ['<head>%s</head>' % token
                                            if this_index == index else token
@@ -146,9 +161,10 @@ with open('answers','w') as outfile:
                             target_sent = ' '.join(target_sent)
 
                             if (lemma, pos) not in lemma_pos:
-                                lemma_pos[(lemma, pos)] = defaultdict(set)
+                                lemma_pos[(lemma, pos)] = defaultdict(dict)
 
-                            lemma_pos[(lemma, pos)][sensekey].add(target_sent)
+                            identifier = ('pwgc', docsrc, instance_id)
+                            lemma_pos[(lemma, pos)][sensekey][target_sent] = identifier
 
                     # reset variables
                     sentence = []

@@ -1,7 +1,15 @@
 '''
 goal is to convert the semcor30
 into the following format
-DOCUMENT_ID LEMMA.IDENTIFIER KEY1 KEY2 KEYN
+DOCUMENT_ID LEMMA.IDENTIFIER KEY1 KEY2
+
+goal is to create dict for each lemma,pos combination which maps
+
+sensekey
+    -> sentence
+        -> (corpus, docsrc, instance_id)
+        in this case, the corpus is 'semcor30'
+
 '''
 import os
 import glob
@@ -48,13 +56,13 @@ def get_lemma_pos_of_sensekey(sense_key):
 
     return lemma, this_pos
 
-def parse_line_with_sense_key(line, doc_id):
+def parse_line_with_sense_key(line, docsrc, counter):
     """
     given a line from semcor30 like this:
     <wf cmd=done pos=JJ lemma=recent wnsn=2 lexsn=5:00:00:past:00>recent</wf>
 
     :param str line: line from semcor
-    :param str doc_id: sourc document basename
+    :param str doc_id: source document basename
 
     :rtype: tuple
     :return: sensekey, output_line_semeval
@@ -69,11 +77,10 @@ def parse_line_with_sense_key(line, doc_id):
     sense_key = info['lemma'] + '%' + info['lexsn']
     irrelevant, pos = get_lemma_pos_of_sensekey(sense_key)
 
+    instance_id = '{lemma}.{pos}.{docsrc}.{counter}'.format(**locals())
+    output_line = '{docsrc} {lemma}.{pos}.{docsrc}.{counter} {sense_key}\n'.format(**locals())
 
-    iden = doc_id + '.' + str(counter)
-    output = '{doc_id} {lemma}.{iden} {sense_key}\n'.format(**locals())
-
-    return lemma, sense_key, pos, output
+    return lemma, sense_key, pos, instance_id, output_line
 
 sentence = []
 key2indices = defaultdict(set)
@@ -87,7 +94,7 @@ with open('answers','w') as outfile:
                                    'tagfiles')
         for path in glob.glob(folder_path+'/br*'):
             with open(path) as infile:
-                doc_id = os.path.basename(path)
+                docsrc = os.path.basename(path)
                 for counter,line in enumerate(infile):
 
                     if line.startswith('<punc>'):
@@ -101,11 +108,13 @@ with open('answers','w') as outfile:
                         sentence.append(token)
                         if all([line.startswith('<wf'),
                                 'lexsn' in line]):
-                            lemma, sensekey, pos, output_line = parse_line_with_sense_key(line,
-                                                                                          doc_id)
+                            lemma, sensekey, pos, instance_id, output_line = parse_line_with_sense_key(line,
+                                                                                                       docsrc,
+                                                                                                       counter)
                             outfile.write(output_line)
+
                             training_freq[sensekey] += 1
-                            key2indices[(sensekey, pos)].add((index, lemma))
+                            key2indices[(sensekey, pos)].add((index, lemma, instance_id, docsrc))
                         index += 1
 
                     elif line.startswith('<s'):
@@ -113,18 +122,19 @@ with open('answers','w') as outfile:
 
                     elif line.startswith('</s'):
                         for (sensekey, pos), info in key2indices.items():
-                            for (index, lemma) in info:
+                            for (index, lemma, instance_id, docsrc) in info:
 
                                 target_sent = ['<head>%s</head>' % token
                                                if this_index == index else token
-                                               for this_index,token in enumerate(sentence)]
+                                               for this_index, token in enumerate(sentence)]
 
                                 target_sent = ' '.join(target_sent)
 
                                 if (lemma, pos) not in lemma_pos:
-                                    lemma_pos[(lemma, pos)] = defaultdict(set)
+                                    lemma_pos[(lemma, pos)] = defaultdict(dict)
 
-                                lemma_pos[(lemma, pos)][sensekey].add(target_sent)
+                                identifier = ('semcor30', docsrc, instance_id)
+                                lemma_pos[(lemma, pos)][sensekey][target_sent] = identifier
 
                         # reset variables
                         sentence = []

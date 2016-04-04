@@ -163,7 +163,7 @@ with open('answers','w') as outfile:
                             if (lemma, pos) not in lemma_pos:
                                 lemma_pos[(lemma, pos)] = defaultdict(dict)
 
-                            identifier = ('pwgc', docsrc, instance_id)
+                            identifier = ('pwgc', docsrc, instance_id, 'manual')
                             lemma_pos[(lemma, pos)][sensekey][target_sent] = identifier
 
                     # reset variables

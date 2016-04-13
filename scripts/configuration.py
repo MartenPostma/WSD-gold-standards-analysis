@@ -3,7 +3,9 @@ import os
 import ast
 from . import wordnet_utils as utils
 
-with open('competitions.txt') as infile:
+main_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+competitions_path = os.path.join(main_dir, 'competitions.txt')
+with open(competitions_path) as infile:
     competitions = ast.literal_eval(infile.read())
 
 

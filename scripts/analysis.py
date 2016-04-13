@@ -1,6 +1,7 @@
 # created or installed modules
 from . import configuration
-from . import wordnet_utils as utils
+from . import wordnet_utils
+from . import utils
 import pickle
 import os
 from collections import defaultdict
@@ -37,6 +38,7 @@ class WsdAnalysis:
         self.exclude_mfs = exclude_mfs
 
         self.info = configuration.get_relevant_paths(self.competition)
+        self.gold = {}
 
         self.sense_rank_d = self.load_sense_rank_dict()
         self.polysemy_d = self.load_polysemy_dict()
@@ -53,8 +55,8 @@ class WsdAnalysis:
         self.mfs_baseline = 100 * (self.sense_ranks[1] / self.num_instances)
         self.avg_num_instances_per_lemma = self.num_instances / len(self.data)
         self.num_of_different_lemmas = len(self.data)
-        self.avg_pol_all = utils.avg_polysemy(self.polysemy_all)
-        self.avg_pol = utils.avg_polysemy(self.polysemy)
+        self.avg_pol_all = wordnet_utils.avg_polysemy(self.polysemy_all)
+        self.avg_pol = wordnet_utils.avg_polysemy(self.polysemy)
 
     def metadata(self):
         """
@@ -74,7 +76,7 @@ class WsdAnalysis:
         #                             'values': list(information.values())})
 
         # display(df)
-        utils.print_dict(information)
+        wordnet_utils.print_dict(information)
 
     def basic_stats(self):
         """
@@ -109,7 +111,7 @@ class WsdAnalysis:
                                             'rb'))
 
         else:
-            sense_rank_d = utils.get_sense_rank_dict(index_sense)
+            sense_rank_d = wordnet_utils.get_sense_rank_dict(index_sense)
             with open(self.info['sense_rank_path'], 'wb') as outfile:
                 pickle.dump(sense_rank_d, outfile)
 
@@ -129,7 +131,7 @@ class WsdAnalysis:
                                           'rb'))
 
         else:
-            polysemy_d = utils.load_lemma_pos2offsets(index_sense)
+            polysemy_d = wordnet_utils.load_lemma_pos2offsets(index_sense)
             with open(self.info['polysemy_path'], 'wb') as outfile:
                 pickle.dump(polysemy_d, outfile)
 
@@ -146,40 +148,17 @@ class WsdAnalysis:
         with open(self.info['answers_path']) as infile:
             for line in infile:
 
-                # lemma info
-                # the variables id1 and id2 are so general
-                # because the information in those fields
-                # are not the same for all competitions
-                id1, id2, *keys = line.strip().split()
+                succes, (identifier, lemma, \
+                pos, sense_rank, mfs_lfs, keys) = utils.analyze_line(line,
+                                                                 self.competition,
+                                                                 self.sense_rank_d)
 
-                if self.competition == 'sem2015-aw':
-                    keys = [key[3:]
-                            for key in keys
-                            if key.startswith('wn:')]
+                self.gold[identifier] = {'keys': keys,
+                                         'mfs_lfs': mfs_lfs,
+                                         'sense_rank': sense_rank,}
 
-                if any([keys == ['U'],
-                        '%' not in line,
-                        not keys]):
+                if not succes:
                     continue
-
-                # pos and lemma info
-                lemma, pos = utils.determine_lemma_pos(keys)
-
-                if self.competition in {'se2-ls',
-                                        'se3-ls',
-                                        'sem2007-aw',
-                                        'semcor16',
-                                        'reuters',
-                                        'wordnet30'}:
-                    lemma = id2.split('.')[0]
-
-                # sense rank info
-                sense_rank = 0
-                sense_ranks = [self.sense_rank_d[key]
-                               for key in keys
-                               if key in self.sense_rank_d]
-                if sense_ranks:
-                    sense_rank = min(sense_ranks)
 
                 # polysemy info
                 pol = self.polysemy_d[(lemma, pos)]
@@ -213,7 +192,7 @@ class WsdAnalysis:
             self.y.append(value)
 
         if rel_freq:
-            self.y = utils.rel_freq(self.y)
+            self.y = wordnet_utils.rel_freq(self.y)
 
         self.df = pd.DataFrame.from_dict({'rel_freq': self.y,
                                           'sense_rank_classes': self.x})
@@ -239,7 +218,7 @@ class WsdAnalysis:
             self.y.append(value)
 
         if rel_freq:
-            self.y = utils.rel_freq(self.y)
+            self.y = wordnet_utils.rel_freq(self.y)
 
         self.df = pd.DataFrame.from_dict({'rel_freq': self.y,
                                           'pos': self.x})
@@ -272,7 +251,7 @@ class WsdAnalysis:
             self.y.append(value)
 
         if rel_freq:
-            self.y = utils.rel_freq(self.y)
+            self.y = wordnet_utils.rel_freq(self.y)
 
         df = pd.DataFrame.from_dict({'rel_freq': self.y,
                                      'polysemy': self.x})

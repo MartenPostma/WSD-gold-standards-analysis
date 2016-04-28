@@ -1,0 +1,16 @@
+http://aclweb.org/anthology/S13-2040	https://www.cs.york.ac.uk/semeval-2013/task12/index.php%3Fid=results.html							
+system_name	system_setting	paper_url	bibtex	offical_results	sense_repo	precision	recall	F-score
+GETALP	wn-1	http://aclweb.org/anthology/S13-2041	http://aclanthology.info/papers/getalp-system-propagation-of-a-lesk-measure-through-an-ant-colony-algorithm.bib	yes	wn30	0.406	0.406	0.406
+GETALP	bn-1	http://aclweb.org/anthology/S13-2041	http://aclanthology.info/papers/getalp-system-propagation-of-a-lesk-measure-through-an-ant-colony-algorithm.bib	yes	bn111	0.263	0.263	0.263
+GETALP	bn-2	http://aclweb.org/anthology/S13-2041	http://aclanthology.info/papers/getalp-system-propagation-of-a-lesk-measure-through-an-ant-colony-algorithm.bib	yes	bn111	0.371	0.371	0.371
+GETALP	wn-1	http://aclweb.org/anthology/S13-2041	http://aclanthology.info/papers/getalp-system-propagation-of-a-lesk-measure-through-an-ant-colony-algorithm.bib	no	wn30	0.514	0.514	0.514
+GETALP	bn-1	http://aclweb.org/anthology/S13-2041	http://aclanthology.info/papers/getalp-system-propagation-of-a-lesk-measure-through-an-ant-colony-algorithm.bib	no	bn111	0.583	0.583	0.583
+GETALP	bn-2	http://aclweb.org/anthology/S13-2041	http://aclanthology.info/papers/getalp-system-propagation-of-a-lesk-measure-through-an-ant-colony-algorithm.bib	no	bn111	0.568	0.568	0.568
+UMCC	DLSI-1	http://aclweb.org/anthology/S13-2042	http://aclanthology.info/papers/umcc_dlsi-reinforcing-a-ranking-algorithm-with-sense-frequencies-and-multidimensional-semantic-resources-to-solve-multilingual-word-sense-disambiguation.bib	yes	wn30	0.639	0.635	0.637
+UMCC	DLSI-2	http://aclweb.org/anthology/S13-2042	http://aclanthology.info/papers/umcc_dlsi-reinforcing-a-ranking-algorithm-with-sense-frequencies-and-multidimensional-semantic-resources-to-solve-multilingual-word-sense-disambiguation.bib	yes	wn30	0.649	0.645	0.647
+UMCC	DLSI-3	http://aclweb.org/anthology/S13-2042	http://aclanthology.info/papers/umcc_dlsi-reinforcing-a-ranking-algorithm-with-sense-frequencies-and-multidimensional-semantic-resources-to-solve-multilingual-word-sense-disambiguation.bib	yes	wn30	0.642	0.639	0.64
+UMCC	DLSI-1	http://aclweb.org/anthology/S13-2042	http://aclanthology.info/papers/umcc_dlsi-reinforcing-a-ranking-algorithm-with-sense-frequencies-and-multidimensional-semantic-resources-to-solve-multilingual-word-sense-disambiguation.bib	yes	bn111	0.677	0.677	0.677
+UMCC	DLSI-2	http://aclweb.org/anthology/S13-2042	http://aclanthology.info/papers/umcc_dlsi-reinforcing-a-ranking-algorithm-with-sense-frequencies-and-multidimensional-semantic-resources-to-solve-multilingual-word-sense-disambiguation.bib	yes	bn111	0.685	0.685	0.685
+UMCC	DLSI-3	http://aclweb.org/anthology/S13-2042	http://aclanthology.info/papers/umcc_dlsi-reinforcing-a-ranking-algorithm-with-sense-frequencies-and-multidimensional-semantic-resources-to-solve-multilingual-word-sense-disambiguation.bib	yes	bn111	0.68	0.68	0.68
+DEABAK	default	http://aclweb.org/anthology/S13-2043	http://aclanthology.info/papers/daebak-peripheral-diversity-for-multilingual-word-sense-disambiguation.bib	yes	bn111	0.605	0.604	0.604
+Weissenborn	default	http://www.aclweb.org/anthology/P/P15/P15-1058.pdf			wn30	0	0	0.728

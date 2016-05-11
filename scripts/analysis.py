@@ -42,6 +42,7 @@ class WsdAnalysis:
 
         self.sense_rank_d = self.load_sense_rank_dict()
         self.polysemy_d = self.load_polysemy_dict()
+        self.iden2lemma = self.load_lexelt()
 
         self.num_instances = 0
         self.data = {}
@@ -57,6 +58,23 @@ class WsdAnalysis:
         self.num_of_different_lemmas = len(self.data)
         self.avg_pol_all = wordnet_utils.avg_polysemy(self.polysemy_all)
         self.avg_pol = wordnet_utils.avg_polysemy(self.polysemy)
+
+    def load_lexelt(self):
+        """
+        every competition should have a file with:
+        identifier SPACE lemma.pos
+
+        :rtype: dict
+        :return: mapping from identifier -> lemma.pos
+        """
+        iden2lemma = {}
+        if os.path.exists(self.info['lexelt']):
+            with open(self.info['lexelt']) as infile:
+                for line in infile:
+                    identifier, lemma_pos = line.strip().split()
+                    iden2lemma[identifier] = lemma_pos
+
+        return iden2lemma
 
     def metadata(self):
         """
@@ -325,14 +343,18 @@ class WsdAnalysis:
                 self.log_x,
                 self.log_y)
 
+            r_squared = pow(r_value, 2)
             print()
-            print('r-squared:" %s' % r_value ** 2)
+            print('r-squared:" %s' % r_squared)
             print('p-value: %s' % p_value)
 
             ax.set_title('log of ' + self.title)
 
             ax.set_xlabel('log of ' + self.x_label)
             ax.set_ylabel('log of ' + self.y_label)
+
+
+            return r_squared, self.y, self.df
 
         else:
 
@@ -345,3 +367,6 @@ class WsdAnalysis:
             ax.set_ylabel(self.y_label)
 
             plt.legend(loc=7)
+
+
+

@@ -57,8 +57,13 @@ def get_relevant_paths(competition):
                                 competition,
                                 'answers')
 
+    lexelt = os.path.join(main_dir,
+                          'competitions',
+                          competition,
+                          'iden2lemma')
+
     info = dict(wordnet_path=wordnet_path, log_path=log_path,
                 sense_rank_path=sense_rank_path, polysemy_path=polysemy_path,
-                answers_path=answers_path)
+                answers_path=answers_path, lexelt=lexelt)
     info.update(competitions[competition])
     return info

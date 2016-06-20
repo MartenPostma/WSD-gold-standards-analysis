@@ -14,14 +14,15 @@ class Score:
     visualize the performance with respect to sense rank and mfs
 
     """
-    def __init__(self, *args, competition='sem2013-aw'):
+    def __init__(self, *args, competition='sem2013-aw', create_log=False):
+        self.create_log = create_log
         self.gold_instance = analysis.WsdAnalysis(competition)
         self.competition = competition
         self.results = {}
 
         for system_name, system_path, training_folder in args:
             system = self.load(system_path)
-            self.score_system(system_name, system, training_folder)
+            self.score_system(system_name, system, system_path, training_folder)
 
         self.load_into_data_frame()
 
@@ -42,10 +43,10 @@ class Score:
 
                 if succes:
                     system[identifier] = keys
-
+                
         return system
 
-    def score_system(self, system_name, system, training_folder):
+    def score_system(self, system_name, system, system_path, training_folder):
         """
         The following steps are executed and
         1. precision
@@ -61,12 +62,20 @@ class Score:
         :param str training_folder: folder which contains training to ims
         and Clexelt objects
         """
+        if self.create_log:
+            outfile = open(system_path + '.log', 'w')
+            
+            # Identifier TAB system TAB gold TAB mfs_lfs TAB correct TAB gold_sense_rank
+            headers = ['identifier', 'system', 'gold', 'mfs_lfs', 'correct', 'gold_sense_rank']
+            outfile.write('\t'.join(headers) + '\n')
+            
         self.results[system_name] = {
             'list_attempted': [],
             'list_scored_instances': [],
             'performance_sense_ranks': defaultdict(list),
             'mfs_lfs': defaultdict(list),
-            'lemma_scores' : {}
+            'lemma_scores' : {},
+            'system_sense_ranks' : defaultdict(int)
         }
 
         for identifier, info in self.gold_instance.gold.items():
@@ -88,17 +97,36 @@ class Score:
                 }
                 self.results[system_name]['lemma_scores'][lemma] = info
 
+            system_sense_rank = 0
             if identifier in system:
+
                 attempted = True
                 correct = any([system_key in gold_keys
                                for system_key in system[identifier]])
 
+                system_sense_rank = 0
+                system_sense_ranks = [self.gold_instance.sense_rank_d[system_key]
+                                      for system_key in system[identifier]
+                                      if system_key in self.gold_instance.sense_rank_d]
+
+                if system_sense_ranks:
+                    system_sense_rank = min(system_sense_ranks)
+
                 self.results[system_name]['lemma_scores'][lemma]['attempted'].append(identifier)
 
+            
+            
+            # Identifier TAB system TAB gold TAB mfs_lfs TAB correct TAB gold_sense_rank
+            export = [identifier, '_'.join(system[identifier]), '_'.join(gold_keys), mfs_lfs, correct, sense_rank]
+            export = [str(item) for item in export]
+            outfile.write('\t'.join(export) + '\n')
+            
+            self.results[system_name]['system_sense_ranks'][system_sense_rank] += 1
             self.results[system_name]['list_attempted'].append(attempted)
             self.results[system_name]['list_scored_instances'].append(correct)
             self.results[system_name]['performance_sense_ranks'][sense_rank].append(correct)
             self.results[system_name]['mfs_lfs'][mfs_lfs].append(correct)
+
 
             self.results[system_name]['lemma_scores'][lemma]['identifiers'].append(identifier)
             self.results[system_name]['lemma_scores'][lemma]['scored_instances'].append(correct)
@@ -126,6 +154,7 @@ class Score:
             clexelt_path = os.path.join(training_folder, lemma + '.bin')
             mfs_bias = -1
             num_instances = 0
+            polysemy = 0
             if os.path.exists(clexelt_path):
                 clexelt_obj = pickle.load(open(clexelt_path, 'rb'))
                 num_instances = len(clexelt_obj.instances)
@@ -139,6 +168,9 @@ class Score:
             info['train_#'] = num_instances
             info['train_mfsbias'] = mfs_bias
             info['polysemy'] = polysemy
+        
+        outfile.close()
+        
 
     def load_into_data_frame(self):
         """
@@ -206,6 +238,8 @@ class Score:
         precision = []
         recall = []
         perc_attempted = []
+        mfs_accs = []
+        lfs_accs = []
 
         for system_name, result in self.results.items():
 
@@ -214,11 +248,20 @@ class Score:
             recall.append(round(result['recall'],2))
             perc_attempted.append(result['perc_attempted'])
 
+            mfs_acc = utils.compute_perc_correct(result['mfs_lfs']['mfs'])
+            lfs_acc = utils.compute_perc_correct(result['mfs_lfs']['lfs'])
+
+            mfs_accs.append(100 * round(mfs_acc, 4))
+            lfs_accs.append(100 * round(lfs_acc, 4))
+
+
         self.df_results = pd.DataFrame.from_dict({
             '1. system': system_names,
-            '2. precision': precision,
-            '3. recall': recall,
-            '4. % attempted': perc_attempted})
+            #'2. precision': precision,
+            '2. GeneralAccuracy': recall,
+            '3. MFSAccuracy' : mfs_accs,
+            '4. LFSAccuracy' : lfs_accs,
+            '5. % attempted': perc_attempted})
 
         display(self.df_results)
 
@@ -282,6 +325,7 @@ class Score:
         """
 
         """
+        plt.figure(figsize=(16, 8))
         sns.set_style('whitegrid')
         ax = sns.barplot(x="mfs_lfs_classes", y="mfs_lfs_performance",
                          hue='system_labels', data=self.df_mfs)
@@ -292,13 +336,11 @@ class Score:
         ax.set_title("% Correct for MFS or LFS")
         plt.legend(loc=7)
 
-        # display(self.df_mfs)
-
-
     def plot_sense_rank_performance(self):
         """
 
         """
+        plt.figure(figsize=(16, 8))
         sns.set_style('whitegrid')
         ax = sns.barplot(x="sense_ranks_classes", y="sense_ranks_performance",
                          hue='system_labels', data=self.df_rank)
@@ -307,6 +349,51 @@ class Score:
         ax.set_xlabel(x_label)
         ax.set_ylabel(y_label)
         ax.set_title("% Correct per sense rank")
-        plt.legend(loc=7)
+        plt.legend(loc=1)
 
-        # display(self.df_rank)
+
+    def compare_sense_ranks(self, system_name):
+        """
+
+        :param str system_name: name of system run
+        """
+        gold_sense_ranks_classes = set(self.gold_instance.sense_ranks)
+        system_sense_rank_classes = set(self.results[system_name]['system_sense_ranks'])
+
+        gold_sense_ranks_classes.update(system_sense_rank_classes)
+        all_keys = list(gold_sense_ranks_classes)
+
+
+        gold = []
+        system = []
+
+        for key in all_keys:
+            system_rank = 0
+            gold_rank = 0
+
+            if key in self.gold_instance.sense_ranks:
+                gold_rank = self.gold_instance.sense_ranks[key]
+            if key in self.results[system_name]['system_sense_ranks']:
+                system_rank = self.results[system_name]['system_sense_ranks'][key]
+
+            system.append(system_rank)
+            gold.append(gold_rank)
+
+        x = all_keys + all_keys
+        y = gold + system
+        labels = ['gold' for _ in all_keys] + [system_name for _ in all_keys]
+
+        df = pd.DataFrame.from_dict({
+            'x': x,
+            'y': y,
+            'labels': labels})
+
+        sns.set_style('whitegrid')
+        ax = sns.barplot(x="x", y="y",
+                         hue='labels', data=df)
+        x_label = 'sense rank class'
+        y_label = 'freq'
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.set_title("Sense assignment")
+        plt.legend(loc=7)

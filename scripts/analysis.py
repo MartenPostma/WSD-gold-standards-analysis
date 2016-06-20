@@ -162,7 +162,7 @@ class WsdAnalysis:
         2. obtain polysemy distribution
         3. pos distribution
 
-        """
+        """          
         with open(self.info['answers_path']) as infile:
             for line in infile:
 
@@ -195,6 +195,8 @@ class WsdAnalysis:
                 self.pos_d[pos] += 1
                 self.polysemy[pol] += 1
                 self.polysemy_all[pol_all] += 1
+
+
 
     def prepare_plot_sense_ranks(self, rel_freq=False):
         """

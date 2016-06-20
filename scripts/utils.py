@@ -1,5 +1,23 @@
 from . import wordnet_utils
 
+
+def compute_perc_correct(lijst):
+    """
+
+    :param list lijst: list of booleans
+    :rtype: float
+    :return: percentage correct
+    """
+    if not lijst:
+        return 0.0
+
+    correct = sum(lijst)
+    num_instances = len(lijst)
+
+    perc_correct = correct / num_instances
+
+    return perc_correct
+
 def analyze_line(line, competition, sense_rank_d):
     """
     analyze one line of a semeval gold standard and return:

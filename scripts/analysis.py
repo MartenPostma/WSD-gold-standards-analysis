@@ -346,9 +346,12 @@ class WsdAnalysis:
                 self.log_y)
 
             r_squared = pow(r_value, 2)
-            print()
-            print('r-squared:" %s' % r_squared)
-            print('p-value: %s' % p_value)
+
+            debug = False
+            if debug:
+                print()
+                print('r-squared:" %s' % r_squared)
+                print('p-value: %s' % p_value)
 
             ax.set_title('log of ' + self.title)
 
@@ -356,7 +359,7 @@ class WsdAnalysis:
             ax.set_ylabel('log of ' + self.y_label)
 
 
-            return r_squared, self.y, self.df
+            # return r_squared, self.y, self.df
 
         else:
 
